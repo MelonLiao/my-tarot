@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>塔羅覺察練習與個人資料庫 | Tarot Codex</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Noto+Serif+TC:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d0f17;
+      --card-bg: #161b2b;
+      --card-border: #2e3856;
+      --gold: #d4af37;
+      --gold-light: #f3e5ab;
+      --gold-dark: #aa820a;
+      --accent: #9381ff;
+      --text-main: #f0f2f5;
+      --text-muted: #9aa5b8;
+      --danger: #ff6b6b;
+      --success: #51cf66;
+      --radius: 14px;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: 'Noto Serif TC', serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-image: 
+        radial-gradient(ellipse at 50% 0%, rgba(147, 129, 255, 0.12) 0%, transparent 60%),
+        radial-gradient(ellipse at 50% 100%, rgba(212, 175, 55, 0.08) 0%, transparent 60%);
+      background-attachment: fixed;
+    }
+
+    header {
+      background: rgba(13, 15, 23, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--card-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 12px 18px;
+    }
+    .header-content {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+    .brand-icon {
+      font-size: 24px;
+      color: var(--gold);
+      text-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+    }
+    .brand-text h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 1.15rem;
+      letter-spacing: 1px;
+      color: var(--gold-light);
+    }
+    .brand-text p {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    nav {
+      display: flex;
+      gap: 6px;
+      background: rgba(22, 27, 43, 0.8);
+      padding: 4px;
+      border-radius: 40px;
+      border: 1px solid var(--card-border);
+    }
+    .nav-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .nav-btn.active {
+      background: var(--gold);
+      color: #0d0f17;
+      box-shadow: 0 2px 8px rgba(212, 175, 55, 0.35);
+    }
+
+    main {
+      flex: 1;
+      max-width: 1000px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 20px 16px 60px;
+    }
+
+    .tab-view { display: none; }
+    .tab-view.active { display: block; animation: fadeIn 0.35s ease-out; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Common Card & Buttons */
+    .btn {
+      background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+      color: #0d0f17;
+      border: none;
+      padding: 10px 22px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      font-weight: 700;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.25);
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4); }
+    .btn:active { transform: translateY(0); }
+    .btn-secondary {
+      background: transparent;
+      color: var(--gold-light);
+      border: 1px solid var(--gold);
+      box-shadow: none;
+    }
+    .btn-secondary:hover { background: rgba(212, 175, 55, 0.1); }
+    .btn-sm { padding: 6px 14px; font-size: 0.8rem; }
+
+    /* Tarot Card Display (RWS) */
+    .rws-card {
+      width: 160px;
+      aspect-ratio: 1 / 1.73;
+      border-radius: 10px;
+      perspective: 1000px;
+      cursor: pointer;
+      margin: 0 auto;
+      position: relative;
+    }
+    .card-inner {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+    }
+    .rws-card.flipped .card-inner { transform: rotateY(180deg); }
+    .rws-card.reversed.flipped .card-inner { transform: rotateY(180deg) rotate(180deg); }
+
+    .card-face {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 2px solid var(--card-border);
+    }
+    .card-back {
+      background: radial-gradient(circle at center, #232d4b 0%, #101524 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .card-back::before {
+      content: '';
+      position: absolute;
+      inset: 6px;
+      border: 1px dashed rgba(212, 175, 55, 0.45);
+      border-radius: 6px;
+    }
+    .card-back-ornament {
+      width: 60px;
+      height: 60px;
+      border: 2px solid var(--gold);
+      transform: rotate(45deg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card-back-ornament::after {
+      content: '✦';
+      font-size: 24px;
+      color: var(--gold);
+      transform: rotate(-45deg);
+    }
+
+    .card-front {
+      background: #000;
+      transform: rotateY(180deg);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .card-front img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .card-badge {
+      position: absolute;
+      bottom: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(13, 15, 23, 0.88);
+      backdrop-filter: blur(4px);
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.72rem;
+      white-space: nowrap;
+      border: 1px solid var(--gold);
+      color: var(--gold-light);
+      pointer-events: none;
+    }
+
+    /* 覺察練習佈局 */
+    .practice-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .practice-header h2 {
+      font-size: 1.5rem;
+      color: var(--gold-light);
+      margin-bottom: 8px;
+    }
+    .spread-select-wrap {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 14px 0;
+    }
+    .spread-chip {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .spread-chip.active {
+      border-color: var(--gold);
+      background: rgba(212, 175, 55, 0.15);
+      color: var(--gold-light);
+    }
+
+    .cards-row {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin: 28px 0;
+    }
+    .card-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .pos-label {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .reflection-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-top: 24px;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--gold-light);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    textarea, input[type="text"] {
+      width: 100%;
+      background: rgba(13, 15, 23, 0.7);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.92rem;
+      resize: vertical;
+    }
+    textarea:focus, input[type="text"]:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 8px rgba(212, 175, 55, 0.2);
+    }
+
+    /* 塔羅出題練習 */
+    .quiz-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 24px;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    .scenario-box {
+      background: rgba(147, 129, 255, 0.08);
+      border-left: 3px solid var(--accent);
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 20px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    /* 78 張個人圖鑑庫 */
+    .codex-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .filter-tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .filter-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      padding: 5px 12px;
+      border-radius: 16px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    .filter-btn.active {
+      background: var(--gold);
+      color: #0d0f17;
+      border-color: var(--gold);
+    }
+    .codex-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 16px;
+    }
+    .codex-card-thumb {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.25s;
+      display: flex;
+      flex-direction: column;
+    }
+    .codex-card-thumb:hover {
+      transform: translateY(-4px);
+      border-color: var(--gold);
+      box-shadow: 0 6px 16px rgba(212, 175, 55, 0.2);
+    }
+    .thumb-img {
+      width: 100%;
+      aspect-ratio: 1 / 1.73;
+      object-fit: cover;
+      background: #111;
+    }
+    .thumb-info {
+      padding: 8px 6px;
+      text-align: center;
+    }
+    .thumb-title {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--gold-light);
+      margin-bottom: 2px;
+    }
+    .thumb-count {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    /* 日記列表 */
+    .journal-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .journal-entry {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 18px;
+      position: relative;
+    }
+    .journal-entry-header {
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      margin-bottom: 10px;
+    }
+    .journal-tags {
+      display: flex;
+      gap: 6px;
+    }
+    .journal-tag {
+      background: rgba(147, 129, 255, 0.15);
+      color: var(--accent);
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 0.75rem;
+    }
+    .entry-cards-preview {
+      display: flex;
+      gap: 12px;
+      margin: 12px 0;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .mini-card {
+      width: 50px;
+      aspect-ratio: 1 / 1.73;
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid var(--card-border);
+      position: relative;
+    }
+    .mini-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .mini-card.rev img {
+      transform: rotate(180deg);
+    }
+
+    /* Modal 浮動卡片詳情 */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(6px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-content {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      border-radius: var(--radius);
+      overflow-y: auto;
+      padding: 24px;
+      position: relative;
+    }
+    .modal-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 24px;
+      cursor: pointer;
+    }
+    .modal-body {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .modal-card-img {
+      width: 150px;
+      aspect-ratio: 1 / 1.73;
+      border-radius: 8px;
+      border: 1px solid var(--gold);
+      object-fit: cover;
+      box-shadow: var(--shadow);
+    }
+    .modal-info {
+      flex: 1;
+      min-width: 240px;
+    }
+
+    /* Canvas 圖片預覽彈窗 */
+    #shareImageCanvas { display: none; }
+    .preview-modal-img {
+      max-width: 100%;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      margin: 14px 0;
+    }
+
+    @media (max-width: 640px) {
+      .rws-card { width: 110px; }
+      .header-content { justify-content: center; }
+      nav { width: 100%; justify-content: space-around; }
+      .nav-btn { padding: 6px 10px; font-size: 0.76rem; }
+      .modal-body { justify-content: center; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-content">
+      <div class="brand" onclick="switchTab('practice')">
+        <div class="brand-icon">✦</div>
+        <div class="brand-text">
+          <h1>TAROT CODEX</h1>
+          <p>塔羅覺察練習與個人資料庫</p>
+        </div>
+      </div>
+      <nav>
+        <button class="nav-btn active" onclick="switchTab('practice')"><span>🔮</span> 覺察抽牌</button>
+        <button class="nav-btn" onclick="switchTab('quiz')"><span>⚔️</span> 出題練功</button>
+        <button class="nav-btn" onclick="switchTab('codex')"><span>📖</span> 牌卡典籍</button>
+        <button class="nav-btn" onclick="switchTab('journal')"><span>📜</span> 塔羅日記</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- TAB 1: 覺察抽牌練習 -->
+    <section id="tab-practice" class="tab-view active">
+      <div class="practice-header">
+        <h2>今天，潛意識想對你說什麼？</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">深呼吸，靜心想著你當下的困惑或提問，挑選抽牌方式。</p>
+        
+        <div class="spread-select-wrap">
+          <div class="spread-chip active" onclick="setSpread('single', this)">單張直覺卡</div>
+          <div class="spread-chip" onclick="setSpread('three', this)">身·心·靈 三牌陣</div>
+          <div class="spread-chip" onclick="setSpread('timeline', this)">過去·現在·未來</div>
+        </div>
+
+        <button class="btn" onclick="shuffleAndDraw()" id="drawBtn">
+          <span>✨</span> 洗牌並翻牌
+        </button>
+      </div>
+
+      <!-- 牌陣容器 -->
+      <div class="cards-row" id="cardsDisplayContainer">
+        <!-- 動態產生牌面 -->
+      </div>
+
+      <!-- 覺察心得填寫區 -->
+      <div class="reflection-box" id="practiceFormBox" style="display: none;">
+        <h3 style="color: var(--gold-light); margin-bottom: 12px; font-size: 1.1rem;">📝 你的直覺覺察筆記</h3>
+        <div class="form-group">
+          <label>你的提問 / 當前心境主題：</label>
+          <input type="text" id="practiceQuestion" placeholder="例如：我對於新專案的內心焦慮從何而來？">
+        </div>
+        <div class="form-group">
+          <label>第一眼的視覺感受與牌面直覺：</label>
+          <textarea id="practiceIntuition" rows="3" placeholder="牌面中的人物、顏色或符號給了你什麼第一直覺觸動？"></textarea>
+        </div>
+        <div class="form-group">
+          <label>今日覺察轉化行動 (Actionable Insight)：</label>
+          <textarea id="practiceAction" rows="2" placeholder="今天我可以做的一件小轉變或體悟是什麼？"></textarea>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <button class="btn" onclick="savePracticeToJournal()">💾 存入塔羅日記與卡牌庫</button>
+          <button class="btn btn-secondary" onclick="generateShareImage()">🎨 產生分享美圖</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: 出題練習 (測驗練功) -->
+    <section id="tab-quiz" class="tab-view">
+      <div class="quiz-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <h2 style="font-size:1.3rem; color:var(--gold-light);">⚔️ 隨機情境解牌出題</h2>
+          <button class="btn btn-secondary btn-sm" onclick="initNewQuiz()">換一題 ↻</button>
+        </div>
+
+        <div class="scenario-box" id="quizScenario">
+          正在抽題中...
+        </div>
+
+        <div style="text-align: center; margin: 20px 0;">
+          <div class="rws-card flipped" id="quizCardElem" style="cursor: default;">
+            <div class="card-inner">
+              <div class="card-face card-front">
+                <img id="quizCardImg" src="" alt="">
+                <div class="card-badge" id="quizCardBadge"></div>
+              </div>
+            </div>
+          </div>
+          <p id="quizCardName" style="color: var(--gold-light); font-weight: 700; margin-top: 10px;"></p>
+        </div>
+
+        <div class="form-group">
+          <label>你的專業解讀觀點：</label>
+          <textarea id="quizAnswerInput" rows="4" placeholder="如果是你，你會如何引導這位問卜者？這張牌在該情境的核心提醒是什麼？"></textarea>
+        </div>
+
+        <button class="btn" style="width: 100%;" onclick="submitQuizPractice()">送出解讀並歸檔至個人卡牌庫</button>
+      </div>
+    </section>
+
+    <!-- TAB 3: 78 張個人卡牌典籍 (資料庫) -->
+    <section id="tab-codex" class="tab-view">
+      <div class="codex-controls">
+        <div class="filter-tabs">
+          <button class="filter-btn active" onclick="filterCodex('all', this)">全部 78 張</button>
+          <button class="filter-btn" onclick="filterCodex('major', this)">大阿卡納 (22)</button>
+          <button class="filter-btn" onclick="filterCodex('wands', this)">權杖 (Wands)</button>
+          <button class="filter-btn" onclick="filterCodex('cups', this)">聖杯 (Cups)</button>
+          <button class="filter-btn" onclick="filterCodex('swords', this)">寶劍 (Swords)</button>
+          <button class="filter-btn" onclick="filterCodex('pentacles', this)">錢幣 (Pentacles)</button>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-secondary btn-sm" onclick="exportData()">匯出備份</button>
+          <button class="btn btn-secondary btn-sm" onclick="importDataPrompt()">匯入</button>
+        </div>
+      </div>
+
+      <div class="codex-grid" id="codexGrid">
+        <!-- 78 張卡牌列表 -->
+      </div>
+    </section>
+
+    <!-- TAB 4: 塔羅日記 -->
+    <section id="tab-journal" class="tab-view">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="font-size: 1.3rem; color: var(--gold-light);">📜 歷史覺察歷程</h2>
+        <span id="journalCount" style="color: var(--text-muted); font-size: 0.85rem;">共 0 篇</span>
+      </div>
+      <div class="journal-list" id="journalListContainer">
+        <!-- 日記紀錄 -->
+      </div>
+    </section>
+  </main>
+
+  <!-- 卡牌詳細資訊 Modal -->
+  <div class="modal-backdrop" id="cardDetailModal" onclick="closeModal(event, 'cardDetailModal')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModalDirect('cardDetailModal')">&times;</button>
+      <div class="modal-body">
+        <img id="modalCardImg" class="modal-card-img" src="" alt="">
+        <div class="modal-info">
+          <h2 id="modalCardName" style="color: var(--gold-light); margin-bottom: 4px;"></h2>
+          <p id="modalCardEnName" style="color: var(--accent); font-size: 0.85rem; margin-bottom: 12px; font-family: 'Cinzel';"></p>
+          <p id="modalKeywords" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 14px;"></p>
+          
+          <div style="margin-bottom: 12px;">
+            <strong style="color: var(--gold); font-size: 0.85rem;">【經典牌義】</strong>
+            <p id="modalClassicMeaning" style="font-size: 0.9rem; line-height: 1.5; margin-top: 4px;"></p>
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <strong style="color: var(--accent); font-size: 0.85rem;">【我的專屬精華註解】</strong>
+            <textarea id="modalUserPersonalNote" rows="2" style="margin-top: 6px; font-size: 0.85rem;" placeholder="寫下你對這張牌最深刻的個人體悟..."></textarea>
+            <button class="btn btn-secondary btn-sm" style="margin-top: 6px;" onclick="savePersonalCardNote()">儲存專屬註解</button>
+          </div>
+
+          <div>
+            <strong style="color: var(--gold); font-size: 0.85rem;">【歷史實戰與覺察紀錄彙整】</strong>
+            <div id="modalHistoryLogs" style="margin-top: 8px; font-size: 0.82rem; color: var(--text-muted); max-height: 150px; overflow-y: auto;">
+              尚無練習紀錄。
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 分享美圖生成 Modal -->
+  <div class="modal-backdrop" id="shareImageModal" onclick="closeModal(event, 'shareImageModal')">
+    <div class="modal-content" style="text-align: center;" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModalDirect('shareImageModal')">&times;</button>
+      <h3 style="color: var(--gold-light); margin-bottom: 8px;">✨ 你的覺察名信片已產生</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted);">長按圖片即可儲存，或點選下方按鈕下載</p>
+      <img id="shareResultImg" class="preview-modal-img" src="" alt="覺察圖卡">
+      <div>
+        <a id="downloadShareLink" class="btn" download="tarot-insight.png">下載圖片</a>
+      </div>
+    </div>
+  </div>
+
+  <canvas id="shareCanvas" width="900" height="1200"></canvas>
+
+  <script>
+    // 韋特塔羅 78 張公有領域圖片基底 (Wikimedia Commons RWS 1909 典藏)
+    const RWS_BASE = "https://commons.wikimedia.org/wiki/Special:FilePath/RWS1909_-_";
+    
+    // 78 張標準韋特卡牌主資料
+    const TAROT_CARDS = [
+      // 大阿卡納 (22)
+      { id: "maj_00", suit: "major", num: 0, name: "愚者", en: "The Fool", img: RWS_BASE + "00_Fool.jpeg", keywords: "新的開始、冒險、純真、潛能、跳躍", meaning: "代表無限的可能與全新旅途的開端。拋下過度顧慮，帶著純真的直覺勇敢踏出第一步。" },
+      { id: "maj_01", suit: "major", num: 1, name: "魔術師", en: "The Magician", img: RWS_BASE + "01_Magician.jpeg", keywords: "顯化、創造力、意志力、資源整合", meaning: "桌上具備風火水土四大元素，象徵你已擁有完成目標所需的一切資源與能力，關鍵在於專注採取行動。" },
+      { id: "maj_02", suit: "major", num: 2, name: "女祭司", en: "The High Priestess", img: RWS_BASE + "02_High_Priestess.jpeg", keywords: "直覺、潛意識、沉靜、內在智慧", meaning: "坐在黑白雙柱之間，守護神秘之簾。提醒你暫緩外在爭辯，向內聆聽內心的寧靜耳語。" },
+      { id: "maj_03", suit: "major", num: 3, name: "皇后", en: "The Empress", img: RWS_BASE + "03_Empress.jpeg", keywords: "豐盛、滋養、愛、感官享受、母性", meaning: "大自然與感官的豐碩象徵。接納並滋養自己的感受，讓創意如大地之花自然孕育盛放。" },
+      { id: "maj_04", suit: "major", num: 4, name: "皇帝", en: "The Emperor", img: RWS_BASE + "04_Emperor.jpeg", keywords: "秩序、領導力、結構、邊界、穩定", meaning: "象徵穩固的架構與建立秩序的能力。此時需要清晰的原則、理性規劃與堅定的自我責任感。" },
+      { id: "maj_05", suit: "major", num: 5, name: "教皇", en: "The Hierophant", img: RWS_BASE + "05_Hierophant.jpeg", keywords: "傳統、精神指引、導師、信仰體系", meaning: "追求更高的智慧傳承與價值指引。可在正統學習、良師益友或內心信條中尋找平靜力量。" },
+      { id: "maj_06", suit: "major", num: 6, name: "戀人", en: "The Lovers", img: RWS_BASE + "06_Lovers.jpeg", keywords: "和諧、連結、價值觀抉擇、親密感", meaning: "在天使伊甸園下的心靈契約。除了親密關係，更象徵忠於自我靈魂的核心價值觀抉擇。" },
+      { id: "maj_07", suit: "major", num: 7, name: "戰車", en: "The Chariot", img: RWS_BASE + "07_Chariot.jpeg", keywords: "意志力、克服挑戰、自律、勝利前行", meaning: "駕馭黑白雙獅，象徵掌控相互衝突的慾望與情緒，憑藉高度專注力帶領自己衝破阻礙。" },
+      { id: "maj_08", suit: "major", num: 8, name: "力量", en: "Strength", img: RWS_BASE + "08_Strength.jpeg", keywords: "溫柔的堅韌、包容、耐心、克服恐懼", meaning: "以花冠輕撫雄獅，不是以暴制暴，而是透過深刻的自我慈悲與無畏的耐心馴服內在的野獸。" },
+      { id: "maj_09", suit: "major", num: 9, name: "隱士", en: "The Hermit", img: RWS_BASE + "09_Hermit.jpeg", keywords: "內省、孤獨、尋求真理、自我覺察", meaning: "高山雪峰上提燈佇立的老人。主動離開外界喧囂，在獨處沉思中看清自己靈魂真正的燈火方向。" },
+      { id: "maj_10", suit: "major", num: 10, name: "命運之輪", en: "Wheel of Fortune", img: RWS_BASE + "10_Wheel_of_Fortune.jpeg", keywords: "生命循環、轉機、因緣、變化、順應", meaning: "宇宙萬物生生不息的更迭循環。學會順流而動，接納高低起伏，看清低谷背後所醞釀的轉折禮物。" },
+      { id: "maj_11", suit: "major", num: 11, name: "正義", en: "Justice", img: RWS_BASE + "11_Justice.jpeg", keywords: "公正、平衡、因果律、誠實面對", meaning: "手持寶劍與天秤。客觀看待事實，釐清因果責任，以澄澈誠實的心做出無愧於己的決斷。" },
+      { id: "maj_12", suit: "major", num: 12, name: "倒吊人", en: "The Hanged Man", img: RWS_BASE + "12_Hanged_Man.jpeg", keywords: "轉念、臣服、暫停等待、新視角", meaning: "頭頂靈光倒吊於生命樹上。當前無法主動推進時，放下控制欲，換個完全倒置的角度看待問題。" },
+      { id: "maj_13", suit: "major", num: 13, name: "死神", en: "Death", img: RWS_BASE + "13_Death.jpeg", keywords: "結束、轉化、重生、斷捨離、新生", meaning: "舊有模式徹底落幕，為嶄新的破曉朝陽騰出空間。勇敢放下不再為你服務的包袱與執念。" },
+      { id: "maj_14", suit: "major", num: 14, name: "節制", en: "Temperance", img: RWS_BASE + "14_Temperance.jpeg", keywords: "調和、中庸、流動、耐心整合", meaning: "雙足一水一土，水流在雙杯間平靜流轉。在極端的生活中找到平衡節奏，耐心整合矛盾的內心元素。" },
+      { id: "maj_15", suit: "major", num: 15, name: "惡魔", en: "The Devil", img: RWS_BASE + "15_Devil.jpeg", keywords: "執念、誘惑、束縛、陰暗面、成癮", meaning: "鎖鏈套在頸項，但實際上鎖鏈很寬鬆隨時可脫除。看清困住自己的往往是自我恐懼與過度的慾望執著。" },
+      { id: "maj_16", suit: "major", num: 16, name: "高塔", en: "The Tower", img: RWS_BASE + "16_Tower.jpeg", keywords: "突如其來的崩塌、幻象破除、突破", meaning: "雷電擊碎了虛幻僵化的高塔。震撼短暫而強烈，但這正是摧毀虛假幻覺、重新在真實基石上重建的契機。" },
+      { id: "maj_17", suit: "major", num: 17, name: "星星", en: "The Star", img: RWS_BASE + "17_Star.jpeg", keywords: "希望、療癒、靈感、平靜、寧靜指引", meaning: "夜幕中倒注清泉的裸身女子。在經歷風暴後迎來內在最純淨的修復與重獲希望的平靜指引。" },
+      { id: "maj_18", suit: "major", num: 18, name: "月亮", en: "The Moon", img: RWS_BASE + "18_Moon.jpeg", keywords: "潛意識迷霧、不安、想像力、夢境", meaning: "龍蝦從幽暗深水爬出，雙犬對月嚎叫。直面潛意識中的不確定感與焦慮，別讓過度想像放大了恐懼。" },
+      { id: "maj_19", suit: "major", num: 19, name: "太陽", en: "The Sun", img: RWS_BASE + "19_Sun.jpeg", keywords: "喜悅、生命力、明晰、成功、活力", meaning: "向日葵前騎白馬的純真孩童。迎來光明的溫暖、真實的自我接納與充滿朝氣的生命喜悅。" },
+      { id: "maj_20", suit: "major", num: 20, name: "審判", en: "Judgement", img: RWS_BASE + "20_Judgement.jpeg", keywords: "覺醒、救贖、召喚、人生重大轉折", meaning: "大天使吹響號角，棺中靈魂甦醒重生。聽從心靈深處的召喚，原諒過去的自己，做出重獲新生的抉擇。" },
+      { id: "maj_21", suit: "major", num: 21, name: "世界", en: "The World", img: RWS_BASE + "21_World.jpeg", keywords: "圓滿、整合、完成一個週期、完整", meaning: "月桂冠中起舞的舞者。一段重要心靈週期的圓滿達成，內心迎來整體的和諧與全新視野。" }
+    ];
+
+    // 自動補齊 56 張小阿卡納 (權杖 Wands, 聖杯 Cups, 寶劍 Swords, 錢幣 Pentacles)
+    const SUITS_META = [
+      { key: "wands", zh: "權杖", name: "Wands", element: "火元素（行動、熱情、願景）" },
+      { key: "cups", zh: "聖杯", name: "Cups", element: "水元素（情感、直覺、人際）" },
+      { key: "swords", zh: "寶劍", name: "Swords", element: "風元素（思維、溝通、挑戰）" },
+      { key: "pentacles", zh: "錢幣", name: "Pentacles", element: "土元素（物質、財富、實作）" }
+    ];
+
+    const NUM_TITLES = [
+      { n: 1, pad: "01", t: "王牌 (Ace)", k: "種子萌芽、潛在機遇" },
+      { n: 2, pad: "02", t: "二", k: "平衡協調、選擇對峙" },
+      { n: 3, pad: "03", t: "三", k: "初步成果、團隊擴展" },
+      { n: 4, pad: "04", t: "四", k: "穩定奠基、保守固守" },
+      { n: 5, pad: "05", t: "五", k: "衝突挑戰、混亂失衡" },
+      { n: 6, pad: "06", t: "六", k: "和諧回報、重回正軌" },
+      { n: 7, pad: "07", t: "七", k: "評估深思、堅守陣地" },
+      { n: 8, pad: "08", t: "八", k: "專注進展、精益求精" },
+      { n: 9, pad: "09", t: "九", k: "接近頂峰、心力考驗" },
+      { n: 10, pad: "10", t: "十", k: "承載極限、週期終結" },
+      { n: 11, pad: "11", t: "侍從 (Page)", k: "求知好奇、新鮮訊息" },
+      { n: 12, pad: "12", t: "騎士 (Knight)", k: "行動出擊、熱烈推進" },
+      { n: 13, pad: "13", t: "皇后 (Queen)", k: "內在成熟、滋養守護" },
+      { n: 14, pad: "14", t: "國王 (King)", k: "掌控大局、成熟智慧" }
+    ];
+
+    SUITS_META.forEach(s => {
+      NUM_TITLES.forEach(item => {
+        const id = `${s.key}_${item.pad}`;
+        const zhName = `${s.zh}${item.t}`;
+        const enName = `${item.t} of ${s.name}`;
+        // 抓取 Wikimedia 規律圖片檔名
+        const imgUrl = `${RWS_BASE}${s.name}_${item.pad}.jpeg`;
+        TAROT_CARDS.push({
+          id: id,
+          suit: s.key,
+          num: item.n,
+          name: zhName,
+          en: enName,
+          img: imgUrl,
+          keywords: `${s.element}、${item.k}`,
+          meaning: `此牌代表在${s.zh}領域（${s.element}）所體現的「${item.t}」能量，提醒你在對應生活層面覺察${item.k}。`
+        });
+      });
+    });
+
+    // 實戰情境題庫
+    const QUIZ_SCENARIOS = [
+      "問卜者是一位剛轉職滿三個月的行銷專員，最近覺得主管對自己的企劃案屢屢打槍，內心挫折懷疑自己是否入錯行，前來詢問解讀指引。",
+      "問卜者陷入一段交往五年的穩定感情，生活平淡無奇，近期對一位新認識的同事產生心動曖昧，感到內疚又困惑，前來尋求自我覺察。",
+      "問卜者是一位自由創作者，近一個月嚴重拖延、失去靈感，看著同儕都有好成績而倍感焦慮，提問如何打破這層創作冰河期。",
+      "問卜者正考慮與好友共同出資創業開咖啡店，但彼此對合約財務透明度有微妙的隱憂，問當前的合作能量與該留意的核心關鍵。"
+    ];
+
+    // LocalStorage 資料存取
+    let AppState = {
+      journal: [], // 日記清單
+      userNotes: {}, // 每張牌的個人精華註解 { cardId: "..." }
+      currentSpread: 'single',
+      drawnCards: [], // 當前覺察抽牌結果 [{ card, isReversed, posName }]
+      currentQuiz: null // 當前測驗題
+    };
+
+    function loadSavedData() {
+      try {
+        const j = localStorage.getItem('tarot_codex_journal');
+        if (j) AppState.journal = JSON.parse(j);
+        const n = localStorage.getItem('tarot_codex_notes');
+        if (n) AppState.userNotes = JSON.parse(n);
+      } catch (e) {
+        console.error("載入紀錄失敗", e);
+      }
+    }
+
+    function saveAppData() {
+      localStorage.setItem('tarot_codex_journal', JSON.stringify(AppState.journal));
+      localStorage.setItem('tarot_codex_notes', JSON.stringify(AppState.userNotes));
+      renderJournalList();
+    }
+
+    // 頁籤切換
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-view').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+      
+      const target = document.getElementById(`tab-${tabId}`);
+      if (target) target.classList.add('active');
+      
+      // 標註導覽鈕
+      const btns = document.querySelectorAll('.nav-btn');
+      if (tabId === 'practice') btns[0].classList.add('active');
+      if (tabId === 'quiz') { btns[1].classList.add('active'); if(!AppState.currentQuiz) initNewQuiz(); }
+      if (tabId === 'codex') { btns[2].classList.add('active'); renderCodex('all'); }
+      if (tabId === 'journal') { btns[3].classList.add('active'); renderJournalList(); }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // 抽牌牌陣切換
+    function setSpread(type, elem) {
+      AppState.currentSpread = type;
+      document.querySelectorAll('.spread-chip').forEach(c => c.classList.remove('active'));
+      elem.classList.add('active');
+      // 重置當前牌面
+      document.getElementById('cardsDisplayContainer').innerHTML = '';
+      document.getElementById('practiceFormBox').style.display = 'none';
+    }
+
+    // 洗牌並抽牌邏輯
+    function shuffleAndDraw() {
+      const container = document.getElementById('cardsDisplayContainer');
+      container.innerHTML = '';
+      AppState.drawnCards = [];
+
+      let positions = [];
+      if (AppState.currentSpread === 'single') {
+        positions = [{ name: '直覺指引' }];
+      } else if (AppState.currentSpread === 'three') {
+        positions = [{ name: '身 (身體與外在)' }, { name: '心 (情緒與感受)' }, { name: '靈 (潛意識指引)' }];
+      } else {
+        positions = [{ name: '過去因緣' }, { name: '當前核心' }, { name: '未來走向' }];
+      }
+
+      // 隨機不重複取牌
+      const shuffled = [...TAROT_CARDS].sort(() => 0.5 - Math.random());
+      const selected = shuffled.slice(0, positions.length);
+
+      positions.forEach((pos, idx) => {
+        const card = selected[idx];
+        const isReversed = Math.random() < 0.45; // 45% 機率逆位
+        AppState.drawnCards.push({ card, isReversed, posName: pos.name });
+
+        const col = document.createElement('div');
+        col.className = 'card-col';
+        col.innerHTML = `
+          <div class="pos-label">${pos.name}</div>
+          <div class="rws-card ${isReversed ? 'reversed' : ''}" id="card-elem-${idx}" onclick="flipCard(${idx})">
+            <div class="card-inner">
+              <div class="card-face card-back">
+                <div class="card-back-ornament"></div>
+              </div>
+              <div class="card-face card-front">
+                <img src="${card.img}" alt="${card.name}" onerror="this.src='https://picsum.photos/seed/${card.id}/300/520'">
+                <div class="card-badge">${card.name} (${isReversed ? '逆位' : '正位'})</div>
+              </div>
+            </div>
+          </div>
+          <div style="font-size:0.85rem; color:var(--gold-light); font-weight:600; text-align:center; min-height:22px;" id="card-name-${idx}">
+            點擊翻牌
+          </div>
+        `;
+        container.appendChild(col);
+      });
+
+      // 自動依序翻開
+      selected.forEach((c, i) => {
+        setTimeout(() => flipCard(i), 400 + i * 350);
+      });
+
+      document.getElementById('practiceFormBox').style.display = 'block';
+    }
+
+    function flipCard(idx) {
+      const cardElem = document.getElementById(`card-elem-${idx}`);
+      const nameElem = document.getElementById(`card-name-${idx}`);
+      if (!cardElem) return;
+      
+      cardElem.classList.add('flipped');
+      const info = AppState.drawnCards[idx];
+      nameElem.innerHTML = `${info.card.name} · <span style="color:${info.isReversed ? 'var(--danger)':'var(--success)'};">${info.isReversed ? '逆位' : '正位'}</span>`;
+    }
+
+    // 儲存覺察日記
+    function savePracticeToJournal() {
+      const q = document.getElementById('practiceQuestion').value.trim();
+      const intuition = document.getElementById('practiceIntuition').value.trim();
+      const action = document.getElementById('practiceAction').value.trim();
+
+      if (!AppState.drawnCards.length) {
+        alert('請先點選洗牌並翻開牌面！');
+        return;
+      }
+
+      const entry = {
+        id: 'entry_' + Date.now(),
+        date: new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit', hour:'2-digit', minute:'2-digit' }),
+        type: '覺察抽牌',
+        spreadName: AppState.currentSpread === 'single' ? '單張直覺' : (AppState.currentSpread === 'three' ? '身心靈三牌陣' : '時間之流'),
+        question: q || '每日覺察練習',
+        cards: AppState.drawnCards.map(d => ({
+          cardId: d.card.id,
+          name: d.card.name,
+          en: d.card.en,
+          img: d.card.img,
+          isReversed: d.isReversed,
+          posName: d.posName
+        })),
+        intuition: intuition,
+        action: action
+      };
+
+      AppState.journal.unshift(entry);
+      saveAppData();
+      alert('✨ 成功儲存！本次覺察已歸檔至【塔羅日記】與各張牌卡的【個人典籍紀錄】中！');
+
+      // 清空表單
+      document.getElementById('practiceQuestion').value = '';
+      document.getElementById('practiceIntuition').value = '';
+      document.getElementById('practiceAction').value = '';
+    }
+
+    // 產生分享圖片 (HTML5 Canvas 繪圖)
+    function generateShareImage() {
+      if (!AppState.drawnCards.length) {
+        alert('請先抽牌！');
+        return;
+      }
+      const canvas = document.getElementById('shareCanvas');
+      const ctx = canvas.getContext('2d');
+      const q = document.getElementById('practiceQuestion').value.trim() || '每日覺察時刻';
+      const intuition = document.getElementById('practiceIntuition').value.trim() || '向內觀照，看見當下最真實的能量指引。';
+
+      // 繪製奢華深藍金背景
+      ctx.fillStyle = '#0d101d';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // 邊框金飾
+      ctx.strokeStyle = '#d4af37';
+      ctx.lineWidth = 4;
+      ctx.strokeRect(30, 30, canvas.width - 60, canvas.height - 60);
+      ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(40, 40, canvas.width - 80, canvas.height - 80);
+
+      // 標題字樣
+      ctx.fillStyle = '#f3e5ab';
+      ctx.font = 'bold 36px "Noto Serif TC", serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('✦ 塔羅覺察隨筆 ✦', canvas.width / 2, 110);
+
+      ctx.fillStyle = '#9aa5b8';
+      ctx.font = '22px "Noto Serif TC", serif';
+      ctx.fillText(new Date().toLocaleDateString('zh-TW') + ' · ' + q, canvas.width / 2, 160);
+
+      // 繪製卡牌 (最多繪製 3 張)
+      const count = AppState.drawnCards.length;
+      const cardW = count === 1 ? 260 : (count === 3 ? 190 : 210);
+      const cardH = cardW * 1.73;
+      const totalW = count * cardW + (count - 1) * 30;
+      let startX = (canvas.width - totalW) / 2;
+      const cardY = 220;
+
+      let loadedImages = 0;
+      AppState.drawnCards.forEach((d, idx) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          ctx.save();
+          const cx = startX + idx * (cardW + 30) + cardW / 2;
+          const cy = cardY + cardH / 2;
+
+          ctx.translate(cx, cy);
+          if (d.isReversed) ctx.rotate(Math.PI);
+          ctx.drawImage(img, -cardW / 2, -cardH / 2, cardW, cardH);
+          ctx.restore();
+
+          // 標註牌名
+          ctx.fillStyle = '#d4af37';
+          ctx.font = 'bold 22px "Noto Serif TC", serif';
+          ctx.fillText(`${d.card.name} (${d.isReversed ? '逆' : '正'})`, cx, cardY + cardH + 36);
+
+          loadedImages++;
+          if (loadedImages === count) {
+            drawShareTextAndFinish(ctx, canvas, intuition);
+          }
+        };
+        img.onerror = () => {
+          // 若圖片載入失敗使用金框替換
+          ctx.fillStyle = '#1c233a';
+          const x = startX + idx * (cardW + 30);
+          ctx.fillRect(x, cardY, cardW, cardH);
+          ctx.strokeStyle = '#d4af37';
+          ctx.strokeRect(x, cardY, cardW, cardH);
+          ctx.fillStyle = '#f3e5ab';
+          ctx.font = '20px serif';
+          ctx.fillText(d.card.name, x + cardW / 2, cardY + cardH / 2);
+
+          loadedImages++;
+          if (loadedImages === count) {
+            drawShareTextAndFinish(ctx, canvas, intuition);
+          }
+        };
+        img.src = d.card.img;
+      });
+    }
+
+    function drawShareTextAndFinish(ctx, canvas, text) {
+      // 繪製下方心得文字方塊
+      ctx.fillStyle = 'rgba(22, 27, 43, 0.85)';
+      ctx.roundRect(80, 720, canvas.width - 160, 360, 16);
+      ctx.fill();
+      ctx.strokeStyle = '#2e3856';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      ctx.fillStyle = '#d4af37';
+      ctx.font = 'bold 24px "Noto Serif TC", serif';
+      ctx.textAlign = 'left';
+      ctx.fillText('【 直覺覺察之音 】', 120, 780);
+
+      ctx.fillStyle = '#f0f2f5';
+      ctx.font = '22px "Noto Serif TC", serif';
+      wrapText(ctx, text, 120, 830, canvas.width - 240, 36);
+
+      // Footer
+      ctx.fillStyle = '#9aa5b8';
+      ctx.font = '18px "Cinzel", serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('— TAROT CODEX · INSIGHT & PRACTICE —', canvas.width / 2, 1140);
+
+      const resultUrl = canvas.toDataURL('image/png');
+      document.getElementById('shareResultImg').src = resultUrl;
+      document.getElementById('downloadShareLink').href = resultUrl;
+      document.getElementById('shareImageModal').classList.add('open');
+    }
+
+    function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+      const words = text.split('');
+      let line = '';
+      for (let n = 0; n < words.length; n++) {
+        const testLine = line + words[n];
+        const metrics = ctx.measureText(testLine);
+        if (metrics.width > maxWidth && n > 0) {
+          ctx.fillText(line, x, y);
+          line = words[n];
+          y += lineHeight;
+        } else {
+          line = testLine;
+        }
+      }
+      ctx.fillText(line, x, y);
+    }
+
+    // TAB 2: 出題練習邏輯
+    function initNewQuiz() {
+      const randomCard = TAROT_CARDS[Math.floor(Math.random() * TAROT_CARDS.length)];
+      const randomScenario = QUIZ_SCENARIOS[Math.floor(Math.random() * QUIZ_SCENARIOS.length)];
+      const isReversed = Math.random() < 0.45;
+
+      AppState.currentQuiz = {
+        card: randomCard,
+        isReversed: isReversed,
+        scenario: randomScenario
+      };
+
+      document.getElementById('quizScenario').innerHTML = `<strong>💼 案主情境問題：</strong><br>${randomScenario}`;
+      const imgElem = document.getElementById('quizCardImg');
+      imgElem.src = randomCard.img;
+      imgElem.onerror = () => { imgElem.src = 'https://picsum.photos/seed/' + randomCard.id + '/300/520'; };
+
+      const cardElem = document.getElementById('quizCardElem');
+      if (isReversed) cardElem.classList.add('reversed');
+      else cardElem.classList.remove('reversed');
+
+      document.getElementById('quizCardBadge').innerText = `${randomCard.name} (${isReversed ? '逆位' : '正位'})`;
+      document.getElementById('quizCardName').innerText = `${randomCard.name} · ${randomCard.en} (${isReversed ? '逆位' : '正位'})`;
+      document.getElementById('quizAnswerInput').value = '';
+    }
+
+    function submitQuizPractice() {
+      const ans = document.getElementById('quizAnswerInput').value.trim();
+      if (!ans) {
+        alert('請先寫下你的直覺解讀再送出歸檔喔！');
+        return;
+      }
+
+      const q = AppState.currentQuiz;
+      const entry = {
+        id: 'quiz_' + Date.now(),
+        date: new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit', hour:'2-digit', minute:'2-digit' }),
+        type: '出題測驗',
+        spreadName: '實戰解讀出題',
+        question: q.scenario,
+        cards: [{
+          cardId: q.card.id,
+          name: q.card.name,
+          en: q.card.en,
+          img: q.card.img,
+          isReversed: q.isReversed,
+          posName: '核心對應牌'
+        }],
+        intuition: ans,
+        action: `標準參考牌義：${q.card.keywords}。${q.card.meaning}`
+      };
+
+      AppState.journal.unshift(entry);
+      saveAppData();
+      alert('🎯 解讀已成功歸檔！你所寫的解析已同步收錄在「' + q.card.name + '」的卡牌實戰筆記庫中！');
+      initNewQuiz();
+    }
+
+    // TAB 3: 78 張個人圖鑑庫繪製
+    function renderCodex(filterSuit) {
+      const grid = document.getElementById('codexGrid');
+      grid.innerHTML = '';
+
+      const filtered = TAROT_CARDS.filter(c => filterSuit === 'all' || c.suit === filterSuit);
+
+      filtered.forEach(c => {
+        // 計算這張牌在日記中出現過幾次
+        const count = AppState.journal.filter(j => j.cards && j.cards.some(item => item.cardId === c.id)).length;
+        const hasNote = !!AppState.userNotes[c.id];
+
+        const thumb = document.createElement('div');
+        thumb.className = 'codex-card-thumb';
+        thumb.onclick = () => openCardDetailModal(c.id);
+        thumb.innerHTML = `
+          <img class="thumb-img" src="${c.img}" alt="${c.name}" onerror="this.src='https://picsum.photos/seed/${c.id}/200/340'">
+          <div class="thumb-info">
+            <div class="thumb-title">${c.name}</div>
+            <div class="thumb-count">${count} 次練習 ${hasNote ? '· ✦專屬筆記' : ''}</div>
+          </div>
+        `;
+        grid.appendChild(thumb);
+      });
+    }
+
+    function filterCodex(suit, btnElem) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btnElem.classList.add('active');
+      renderCodex(suit);
+    }
+
+    // 卡牌詳情彈窗
+    let currentModalCardId = null;
+    function openCardDetailModal(cardId) {
+      currentModalCardId = cardId;
+      const c = TAROT_CARDS.find(item => item.id === cardId);
+      if (!c) return;
+
+      const img = document.getElementById('modalCardImg');
+      img.src = c.img;
+      img.onerror = () => { img.src = 'https://picsum.photos/seed/' + c.id + '/300/520'; };
+
+      document.getElementById('modalCardName').innerText = c.name;
+      document.getElementById('modalCardEnName').innerText = c.en;
+      document.getElementById('modalKeywords').innerText = `【關鍵象徵】：${c.keywords}`;
+      document.getElementById('modalClassicMeaning').innerText = c.meaning;
+
+      // 個人專屬筆記
+      document.getElementById('modalUserPersonalNote').value = AppState.userNotes[c.id] || '';
+
+      // 檢索所有與這張牌有關的日記與解讀
+      const historyLogsContainer = document.getElementById('modalHistoryLogs');
+      const relatedLogs = AppState.journal.filter(j => j.cards && j.cards.some(item => item.cardId === c.id));
+      if (!relatedLogs.length) {
+        historyLogsContainer.innerHTML = '<em>尚無此牌的抽牌與解題紀錄。</em>';
+      } else {
+        historyLogsContainer.innerHTML = relatedLogs.map(log => `
+          <div style="border-bottom: 1px solid var(--card-border); padding: 6px 0; margin-bottom: 6px;">
+            <div style="color: var(--gold-light);">${log.date} · ${log.question}</div>
+            <div style="color: var(--text-main); margin-top: 2px;">我的解析：${log.intuition || '無'}</div>
+          </div>
+        `).join('');
+      }
+
+      document.getElementById('cardDetailModal').classList.add('open');
+    }
+
+    function savePersonalCardNote() {
+      if (!currentModalCardId) return;
+      const note = document.getElementById('modalUserPersonalNote').value.trim();
+      AppState.userNotes[currentModalCardId] = note;
+      saveAppData();
+      alert('已更新此牌卡的個人專屬筆記！');
+      renderCodex(document.querySelector('.filter-btn.active')?.getAttribute('onclick')?.match(/'([^']+)'/)?.[1] || 'all');
+    }
+
+    // TAB 4: 塔羅日記繪製
+    function renderJournalList() {
+      const container = document.getElementById('journalListContainer');
+      document.getElementById('journalCount').innerText = `共 ${AppState.journal.length} 篇紀錄`;
+      if (!AppState.journal.length) {
+        container.innerHTML = `
+          <div style="text-align: center; color: var(--text-muted); padding: 40px;">
+            <p>目前還沒有任何覺察紀錄。</p>
+            <button class="btn btn-sm" style="margin-top: 14px;" onclick="switchTab('practice')">開始第一次抽牌覺察</button>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = AppState.journal.map(j => `
+        <div class="journal-entry">
+          <div class="journal-entry-header">
+            <span>📅 ${j.date}</span>
+            <div class="journal-tags">
+              <span class="journal-tag">${j.type}</span>
+              <span class="journal-tag">${j.spreadName}</span>
+            </div>
+          </div>
+          <h4 style="color: var(--gold-light); font-size: 1.05rem; margin-bottom: 8px;">主題：${j.question}</h4>
+          
+          <div class="entry-cards-preview">
+            ${j.cards.map(c => `
+              <div class="mini-card ${c.isReversed ? 'rev' : ''}" title="${c.name} (${c.isReversed ? '逆' : '正'})">
+                <img src="${c.img}" alt="${c.name}" onerror="this.src='https://picsum.photos/seed/${c.cardId}/100/170'">
+              </div>
+            `).join('')}
+            <div style="font-size: 0.85rem; color: var(--gold-light);">
+              ${j.cards.map(c => `${c.posName ? c.posName + ': ' : ''}<strong>${c.name}</strong>(${c.isReversed ? '逆' : '正'})`).join('、 ')}
+            </div>
+          </div>
+
+          <div style="background: rgba(13, 15, 23, 0.6); padding: 10px 14px; border-radius: 8px; margin-top: 8px; font-size: 0.88rem; line-height: 1.5;">
+            <div><strong style="color: var(--gold);">直覺解讀：</strong>${j.intuition}</div>
+            ${j.action ? `<div style="margin-top: 4px;"><strong style="color: var(--accent);">行動覺察：</strong>${j.action}</div>` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // 資料匯出與匯入 (方便跨裝置備份)
+    function exportData() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(AppState));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `tarot_codex_backup_${Date.now()}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function importDataPrompt() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json';
+      input.onchange = e => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = ev => {
+          try {
+            const data = JSON.parse(ev.target.result);
+            if (data.journal) AppState.journal = data.journal;
+            if (data.userNotes) AppState.userNotes = data.userNotes;
+            saveAppData();
+            alert('🎉 備份資料匯入成功！');
+            renderCodex('all');
+          } catch (err) {
+            alert('檔案格式錯誤，無法解析！');
+          }
+        };
+        reader.readAsText(file);
+      };
+      input.click();
+    }
+
+    // Modal 控制
+    function closeModal(e, id) {
+      if (e.target.id === id) document.getElementById(id).classList.remove('open');
+    }
+    function closeModalDirect(id) {
+      document.getElementById(id).classList.remove('open');
+    }
+
+    // 初始化載入
+    window.addEventListener('DOMContentLoaded', () => {
+      loadSavedData();
+      shuffleAndDraw();
+    });
+  </script>
+</body>
+</html>
