@@ -150,9 +150,67 @@
     .btn-secondary:hover { background: rgba(212, 175, 55, 0.1); }
     .btn-sm { padding: 6px 14px; font-size: 0.8rem; }
 
-    /* ==========================================================
-       卡牌核心容器（固定 160px × 275px）
-       ========================================================== */
+    /* 模式切換鈕（線上抽牌 vs 實體牌手動輸入） */
+    .mode-switch-wrap {
+      display: inline-flex;
+      background: rgba(22, 27, 43, 0.95);
+      border: 1px solid var(--gold);
+      padding: 3px;
+      border-radius: 30px;
+      margin-bottom: 16px;
+    }
+    .mode-btn {
+      background: transparent;
+      border: none;
+      color: var(--gold-light);
+      padding: 6px 18px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 700;
+      transition: all 0.2s;
+    }
+    .mode-btn.active {
+      background: var(--gold);
+      color: #0d0f17;
+    }
+
+    /* 手動輸入選單容器 */
+    .manual-entry-box {
+      background: rgba(147, 129, 255, 0.06);
+      border: 1px dashed var(--accent);
+      border-radius: var(--radius);
+      padding: 18px;
+      max-width: 680px;
+      margin: 0 auto 20px;
+      display: none;
+    }
+    .manual-picker-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      background: rgba(13, 15, 23, 0.6);
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+    }
+    select {
+      background: #101524;
+      color: var(--gold-light);
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-family: inherit;
+      font-size: 0.88rem;
+      outline: none;
+      flex: 1;
+      min-width: 180px;
+    }
+
+    /* 卡牌核心容器 */
     .rws-card {
       width: 160px;
       height: 275px;
@@ -295,14 +353,13 @@
       color: var(--gold-light);
     }
 
-    /* 頂部提問輸入區 */
     .initial-question-box {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: var(--radius);
       padding: 18px 20px;
       max-width: 680px;
-      margin: 0 auto 24px;
+      margin: 0 auto 20px;
       text-align: left;
     }
 
@@ -577,6 +634,7 @@
       nav { width: 100%; justify-content: space-around; }
       .nav-btn { padding: 6px 10px; font-size: 0.76rem; }
       .modal-body { justify-content: center; text-align: center; }
+      .manual-picker-row { flex-direction: column; align-items: flex-start; gap: 6px; }
     }
   </style>
 </head>
@@ -605,36 +663,57 @@
     <section id="tab-practice" class="tab-view active">
       <div class="practice-header">
         <h2>今天，潛意識想對你說什麼？</h2>
-        <p style="color: var(--text-muted); font-size: 0.9rem;">凝聚意念，先選擇牌陣並寫下你的提問，再進行洗牌。</p>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">深呼吸，凝聚意念，選擇適合你的抽牌方式。</p>
         
+        <!-- 抽牌模式選擇：系統抽牌 vs 實體牌手動輸入 -->
+        <div style="margin-top: 14px;">
+          <div class="mode-switch-wrap">
+            <button class="mode-btn active" id="modeBtnAuto" onclick="setDrawMode('auto')">✨ 線上抽牌</button>
+            <button class="mode-btn" id="modeBtnManual" onclick="setDrawMode('manual')">🃏 手動輸入實體牌</button>
+          </div>
+        </div>
+
         <div class="spread-select-wrap">
           <div class="spread-chip active" onclick="setSpread('single', this)">單張直覺卡</div>
           <div class="spread-chip" onclick="setSpread('three', this)">身·心·靈 三牌陣</div>
           <div class="spread-chip" onclick="setSpread('timeline', this)">過去·現在·未來</div>
         </div>
 
-        <!-- 優先輸入問題 -->
+        <!-- 提問主題輸入 -->
         <div class="initial-question-box">
           <label style="display:block; font-size:0.88rem; color:var(--gold-light); font-weight:700; margin-bottom:8px;">
-            ✦ 沉澱心念 · 寫下你心中的困惑或主題
+            💭 輸入你的提問 / 當前心境主題
           </label>
           <input type="text" id="practiceQuestion" placeholder="例如：我對於新專案的內心焦慮從何而來？（也可以留空抽每日指引）">
-          <div style="text-align: center; margin-top: 14px;">
+          
+          <!-- 線上抽牌模式的按鈕 -->
+          <div id="autoDrawActionWrap" style="text-align: center; margin-top: 14px;">
             <button class="btn" onclick="shuffleCards()" id="drawBtn">
-              <span>🔮 </span> 洗牌 · 喚醒卡牌能量
+              <span>🎴</span> 洗牌並發牌
+            </button>
+          </div>
+        </div>
+
+        <!-- 手動輸入實體牌專用介面 -->
+        <div class="manual-entry-box" id="manualEntryBox">
+          <h4 style="color:var(--gold-light); margin-bottom:12px; font-size:0.95rem; text-align:left;">
+            🃏 挑選你手中抽到的實體牌卡：
+          </h4>
+          <div id="manualPickersContainer"></div>
+          <div style="text-align: center; margin-top: 14px;">
+            <button class="btn" onclick="submitManualCards()">
+              <span>📥</span> 載入實體牌陣並記錄心得
             </button>
           </div>
         </div>
       </div>
 
       <!-- 牌陣容器（由使用者手動點擊翻牌） -->
-      <div class="cards-row" id="cardsDisplayContainer">
-        <!-- 洗牌後呈現在此 -->
-      </div>
+      <div class="cards-row" id="cardsDisplayContainer"></div>
 
-      <!-- 覺察心得填寫區（翻開牌後呈現） -->
+      <!-- 覺察心得填寫區 -->
       <div class="reflection-box" id="practiceFormBox" style="display: none;">
-        <h3 style="color: var(--gold-light); margin-bottom: 14px; font-size: 1.1rem;">🕊️ 心靈鏡像 · 直覺覺察隨筆</h3>
+        <h3 style="color: var(--gold-light); margin-bottom: 14px; font-size: 1.1rem;">📝 你的直覺覺察筆記</h3>
         <div class="form-group">
           <label>第一眼的視覺感受與牌面直覺：</label>
           <textarea id="practiceIntuition" rows="3" placeholder="看著牌面中的人物、顏色或象徵符號，你心裡湧現的第一直覺是什麼？"></textarea>
@@ -881,6 +960,7 @@
     let AppState = {
       journal: [],
       userNotes: {},
+      drawMode: 'auto', // 'auto' 線上洗牌 | 'manual' 手動實體牌
       currentSpread: 'single',
       drawnCards: [],
       flippedCount: 0,
@@ -919,6 +999,39 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    function setDrawMode(mode) {
+      AppState.drawMode = mode;
+      document.getElementById('modeBtnAuto').classList.toggle('active', mode === 'auto');
+      document.getElementById('modeBtnManual').classList.toggle('active', mode === 'manual');
+
+      const autoAction = document.getElementById('autoDrawActionWrap');
+      const manualBox = document.getElementById('manualEntryBox');
+      const container = document.getElementById('cardsDisplayContainer');
+      const formBox = document.getElementById('practiceFormBox');
+
+      container.innerHTML = '';
+      formBox.style.display = 'none';
+
+      if (mode === 'auto') {
+        autoAction.style.display = 'block';
+        manualBox.style.display = 'none';
+      } else {
+        autoAction.style.display = 'none';
+        manualBox.style.display = 'block';
+        buildManualPickers();
+      }
+    }
+
+    function getSpreadPositions() {
+      if (AppState.currentSpread === 'single') {
+        return [{ name: '直覺指引' }];
+      } else if (AppState.currentSpread === 'three') {
+        return [{ name: '身 (外在環境)' }, { name: '心 (情緒感受)' }, { name: '靈 (潛意識智慧)' }];
+      } else {
+        return [{ name: '過去因果' }, { name: '當前核心' }, { name: '未來走向' }];
+      }
+    }
+
     function setSpread(type, elem) {
       AppState.currentSpread = type;
       document.querySelectorAll('.spread-chip').forEach(c => c.classList.remove('active'));
@@ -927,9 +1040,76 @@
       document.getElementById('practiceFormBox').style.display = 'none';
       AppState.drawnCards = [];
       AppState.flippedCount = 0;
+
+      if (AppState.drawMode === 'manual') {
+        buildManualPickers();
+      }
     }
 
-    // 洗牌發牌：先洗出背面，等待使用者親自點擊翻開
+    // 構建手動輸入實體牌的下拉選單
+    function buildManualPickers() {
+      const container = document.getElementById('manualPickersContainer');
+      container.innerHTML = '';
+      const positions = getSpreadPositions();
+
+      positions.forEach((pos, idx) => {
+        const row = document.createElement('div');
+        row.className = 'manual-picker-row';
+        row.innerHTML = `
+          <strong style="color:var(--gold-light); min-width:130px; font-size:0.88rem;">📍 ${pos.name}：</strong>
+          <select id="manualSelectCard_${idx}">
+            ${TAROT_CARDS.map(c => `<option value="${c.id}">${c.name} (${c.en})</option>`).join('')}
+          </select>
+          <label style="color:var(--text-main); font-size:0.85rem; display:flex; align-items:center; gap:6px; cursor:pointer;">
+            <input type="checkbox" id="manualRevCheck_${idx}"> 這是逆位
+          </label>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    // 送出手動輸入的實體牌卡
+    function submitManualCards() {
+      const positions = getSpreadPositions();
+      const container = document.getElementById('cardsDisplayContainer');
+      container.innerHTML = '';
+      AppState.drawnCards = [];
+      AppState.flippedCount = positions.length; // 手動輸入直接視為已全開
+
+      positions.forEach((pos, idx) => {
+        const selectElem = document.getElementById(`manualSelectCard_${idx}`);
+        const revElem = document.getElementById(`manualRevCheck_${idx}`);
+        const cardId = selectElem.value;
+        const isReversed = revElem.checked;
+        const card = TAROT_CARDS.find(c => c.id === cardId);
+
+        AppState.drawnCards.push({ card, isReversed, posName: pos.name, isFlipped: true });
+
+        const col = document.createElement('div');
+        col.className = 'card-col';
+        col.innerHTML = `
+          <div class="pos-label">${pos.name}</div>
+          <div class="rws-card flipped ${isReversed ? 'reversed' : ''}">
+            <div class="card-face-front" style="opacity: 1;">
+              <img src="${card.img}" alt="${card.name}">
+              <div class="card-badge">${card.name} (${isReversed ? '逆' : '正'})</div>
+            </div>
+          </div>
+          <div style="font-size:0.85rem; color:var(--gold-light); text-align:center; min-height:22px; font-weight:700;">
+            ${card.name} · <span style="color:${isReversed ? 'var(--danger)':'var(--success)'};">${isReversed ? '逆位' : '正位'}</span>
+          </div>
+        `;
+        container.appendChild(col);
+      });
+
+      const formBox = document.getElementById('practiceFormBox');
+      formBox.style.display = 'block';
+      setTimeout(() => {
+        formBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 300);
+    }
+
+    // 線上洗牌發牌
     function shuffleCards() {
       const container = document.getElementById('cardsDisplayContainer');
       container.innerHTML = '';
@@ -937,15 +1117,7 @@
       AppState.flippedCount = 0;
       document.getElementById('practiceFormBox').style.display = 'none';
 
-      let positions = [];
-      if (AppState.currentSpread === 'single') {
-        positions = [{ name: '直覺指引' }];
-      } else if (AppState.currentSpread === 'three') {
-        positions = [{ name: '身 (外在環境)' }, { name: '心 (情緒感受)' }, { name: '靈 (潛意識智慧)' }];
-      } else {
-        positions = [{ name: '過去因果' }, { name: '當前核心' }, { name: '未來走向' }];
-      }
-
+      const positions = getSpreadPositions();
       const shuffled = [...TAROT_CARDS].sort(() => 0.5 - Math.random());
       const selected = shuffled.slice(0, positions.length);
 
@@ -975,14 +1147,12 @@
         container.appendChild(col);
       });
 
-      // 平滑滾動到卡牌區
       container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
-    // 使用者親自手動翻開單張卡牌
     function userFlipCard(idx) {
       const info = AppState.drawnCards[idx];
-      if (!info || info.isFlipped) return; // 已經翻過就不用再翻
+      if (!info || info.isFlipped) return;
 
       const cardElem = document.getElementById(`card-elem-${idx}`);
       const nameElem = document.getElementById(`card-name-${idx}`);
@@ -993,7 +1163,6 @@
 
       nameElem.innerHTML = `<strong style="color:var(--gold-light);">${info.card.name}</strong> · <span style="color:${info.isReversed ? 'var(--danger)':'var(--success)'}; font-weight:700;">${info.isReversed ? '逆位' : '正位'}</span>`;
 
-      // 當牌陣中所有的牌都被翻開時，自動展開下方的覺察筆記區
       if (AppState.flippedCount === AppState.drawnCards.length) {
         const formBox = document.getElementById('practiceFormBox');
         formBox.style.display = 'block';
@@ -1016,7 +1185,7 @@
       const entry = {
         id: 'entry_' + Date.now(),
         date: new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit', hour:'2-digit', minute:'2-digit' }),
-        type: '覺察抽牌',
+        type: AppState.drawMode === 'manual' ? '實體牌手動記錄' : '覺察抽牌',
         spreadName: AppState.currentSpread === 'single' ? '單張直覺' : (AppState.currentSpread === 'three' ? '身心靈三牌陣' : '時間之流'),
         question: q,
         cards: AppState.drawnCards.map(d => ({
