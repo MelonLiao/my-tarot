@@ -151,7 +151,7 @@
     .btn-sm { padding: 6px 14px; font-size: 0.8rem; }
 
     /* ==========================================================
-       卡牌核心容器（徹底杜絕拉長：固定 160px × 275px）
+       卡牌核心容器（固定 160px × 275px）
        ========================================================== */
     .rws-card {
       width: 160px;
@@ -164,6 +164,13 @@
       border: 2px solid var(--card-border);
       background-color: #101524;
       overflow: hidden;
+      flex-shrink: 0;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .rws-card:not(.flipped):hover {
+      transform: translateY(-6px);
+      border-color: var(--gold);
+      box-shadow: 0 12px 28px rgba(212, 175, 55, 0.3);
     }
 
     .card-face-back, .card-face-front {
@@ -172,17 +179,18 @@
       left: 0;
       width: 100%;
       height: 100%;
-      transition: opacity 0.4s ease, transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: opacity 0.4s ease;
     }
 
-    /* 未翻開狀態：顯示牌背 */
     .card-face-back {
       background: radial-gradient(circle at center, #232d4b 0%, #101524 100%);
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       z-index: 2;
       opacity: 1;
+      gap: 12px;
     }
     .card-face-back::before {
       content: '';
@@ -206,8 +214,15 @@
       color: var(--gold);
       transform: rotate(-45deg);
     }
+    .card-click-hint {
+      font-size: 0.75rem;
+      color: var(--gold-light);
+      background: rgba(13, 15, 23, 0.7);
+      padding: 3px 8px;
+      border-radius: 10px;
+      border: 1px solid rgba(212, 175, 55, 0.3);
+    }
 
-    /* 牌面正面 */
     .card-face-front {
       z-index: 1;
       opacity: 0;
@@ -220,7 +235,6 @@
       display: block;
     }
 
-    /* 翻牌生效（翻開時牌背隱藏，正面浮現） */
     .rws-card.flipped .card-face-back {
       opacity: 0;
       pointer-events: none;
@@ -229,8 +243,6 @@
       opacity: 1;
       z-index: 3;
     }
-
-    /* 逆位：圖片倒轉 180 度 */
     .rws-card.reversed .card-face-front img {
       transform: rotate(180deg);
     }
@@ -255,7 +267,7 @@
     /* 覺察佈局 */
     .practice-header {
       text-align: center;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
     .practice-header h2 {
       font-size: 1.5rem;
@@ -266,7 +278,7 @@
       display: flex;
       justify-content: center;
       gap: 10px;
-      margin: 14px 0;
+      margin: 14px 0 20px;
     }
     .spread-chip {
       background: var(--card-bg);
@@ -283,6 +295,17 @@
       color: var(--gold-light);
     }
 
+    /* 頂部提問輸入區 */
+    .initial-question-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      max-width: 680px;
+      margin: 0 auto 24px;
+      text-align: left;
+    }
+
     .cards-row {
       display: flex;
       justify-content: center;
@@ -290,6 +313,7 @@
       gap: 24px;
       flex-wrap: wrap;
       margin: 24px 0;
+      min-height: 280px;
     }
     .card-col {
       display: flex;
@@ -299,8 +323,8 @@
       width: 160px;
     }
     .pos-label {
-      font-size: 0.82rem;
-      color: var(--text-muted);
+      font-size: 0.85rem;
+      color: var(--gold-light);
       font-weight: 600;
       letter-spacing: 0.5px;
     }
@@ -309,8 +333,11 @@
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: var(--radius);
-      padding: 20px;
+      padding: 22px;
       margin-top: 24px;
+      max-width: 760px;
+      margin-left: auto;
+      margin-right: auto;
     }
     .form-group {
       margin-bottom: 16px;
@@ -578,7 +605,7 @@
     <section id="tab-practice" class="tab-view active">
       <div class="practice-header">
         <h2>今天，潛意識想對你說什麼？</h2>
-        <p style="color: var(--text-muted); font-size: 0.9rem;">深呼吸，靜心想著你當下的困惑或提問，挑選抽牌方式。</p>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">凝聚意念，先選擇牌陣並寫下你的提問，再進行洗牌。</p>
         
         <div class="spread-select-wrap">
           <div class="spread-chip active" onclick="setSpread('single', this)">單張直覺卡</div>
@@ -586,28 +613,35 @@
           <div class="spread-chip" onclick="setSpread('timeline', this)">過去·現在·未來</div>
         </div>
 
-        <button class="btn" onclick="shuffleAndDraw()" id="drawBtn">
-          <span>✨</span> 洗牌並翻牌
-        </button>
+        <!-- 優先輸入問題 -->
+        <div class="initial-question-box">
+          <label style="display:block; font-size:0.88rem; color:var(--gold-light); font-weight:700; margin-bottom:8px;">
+            💭 步驟 1：輸入你的提問 / 當前心境主題
+          </label>
+          <input type="text" id="practiceQuestion" placeholder="例如：我對於新專案的內心焦慮從何而來？（也可以留空抽每日指引）">
+          <div style="text-align: center; margin-top: 14px;">
+            <button class="btn" onclick="shuffleCards()" id="drawBtn">
+              <span>🎴</span> 步驟 2：洗牌並發牌
+            </button>
+          </div>
+        </div>
       </div>
 
-      <!-- 牌陣容器 -->
-      <div class="cards-row" id="cardsDisplayContainer"></div>
+      <!-- 牌陣容器（由使用者手動點擊翻牌） -->
+      <div class="cards-row" id="cardsDisplayContainer">
+        <!-- 洗牌後呈現在此 -->
+      </div>
 
-      <!-- 覺察心得填寫區 -->
+      <!-- 覺察心得填寫區（翻開牌後呈現） -->
       <div class="reflection-box" id="practiceFormBox" style="display: none;">
-        <h3 style="color: var(--gold-light); margin-bottom: 12px; font-size: 1.1rem;">📝 你的直覺覺察筆記</h3>
-        <div class="form-group">
-          <label>你的提問 / 當前心境主題：</label>
-          <input type="text" id="practiceQuestion" placeholder="例如：我對於新專案的內心焦慮從何而來？">
-        </div>
+        <h3 style="color: var(--gold-light); margin-bottom: 14px; font-size: 1.1rem;">📝 步驟 4：你的直覺覺察筆記</h3>
         <div class="form-group">
           <label>第一眼的視覺感受與牌面直覺：</label>
-          <textarea id="practiceIntuition" rows="3" placeholder="牌面中的人物、顏色或符號給了你什麼第一直覺觸動？"></textarea>
+          <textarea id="practiceIntuition" rows="3" placeholder="看著牌面中的人物、顏色或象徵符號，你心裡湧現的第一直覺是什麼？"></textarea>
         </div>
         <div class="form-group">
           <label>今日覺察轉化行動 (Actionable Insight)：</label>
-          <textarea id="practiceAction" rows="2" placeholder="今天我可以做的一件小轉變或體悟是什麼？"></textarea>
+          <textarea id="practiceAction" rows="2" placeholder="今天我可以做的一件小轉變、轉念或體悟是什麼？"></textarea>
         </div>
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
           <button class="btn" onclick="savePracticeToJournal()">💾 存入塔羅日記與卡牌庫</button>
@@ -620,8 +654,8 @@
     <section id="tab-quiz" class="tab-view">
       <div class="quiz-card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-          <h2 style="font-size:1.3rem; color:var(--gold-light);">⚔️ 隨機情境解牌出題</h2>
-          <button class="btn btn-secondary btn-sm" onclick="initNewQuiz()">換一題 ↻</button>
+          <h2 style="font-size:1.3rem; color:var(--gold-light);">⚔️ 50+ 實戰情境出題</h2>
+          <button class="btn btn-secondary btn-sm" onclick="initNewQuiz()">隨機換題 ↻</button>
         </div>
 
         <div class="scenario-box" id="quizScenario">正在抽題中...</div>
@@ -638,7 +672,7 @@
 
         <div class="form-group">
           <label>你的專業解讀觀點：</label>
-          <textarea id="quizAnswerInput" rows="4" placeholder="如果是你，你會如何引導這位問卜者？這張牌在該情境的核心提醒是什麼？"></textarea>
+          <textarea id="quizAnswerInput" rows="4" placeholder="如果是你，你會如何引導這位問卜者？這張牌在該情境的核心提醒與盲點是什麼？"></textarea>
         </div>
 
         <button class="btn" style="width: 100%;" onclick="submitQuizPractice()">送出解讀並歸檔至個人卡牌庫</button>
@@ -792,10 +826,56 @@
     });
 
     const QUIZ_SCENARIOS = [
-      "問卜者是一位剛轉職滿三個月的行銷專員，最近覺得主管對自己的企劃案屢屢打槍，內心挫折懷疑自己是否入錯行，前來詢問解讀指引。",
-      "問卜者陷入一段交往五年的穩定感情，生活平淡無奇，近期對一位新認識的同事產生心動曖昧，感到內疚又困惑，前來尋求自我覺察。",
-      "問卜者是一位自由創作者，近一個月嚴重拖延、失去靈感，看著同儕都有好成績而倍感焦慮，提問如何打破這層創作冰河期。",
-      "問卜者正考慮與好友共同出資創業開咖啡店，但彼此對合約財務透明度有微妙的隱憂，問當前的合作能量與該留意的核心關鍵。"
+      "【職場與事業】問卜者是一位剛轉職滿三個月的行銷專員，最近覺得主管對自己的企劃案屢屢打槍，內心挫折懷疑自己是否入錯行，前來詢問解讀指引。",
+      "【感情與關係】問卜者陷入一段交往五年的穩定感情，生活平淡無奇，近期對一位新認識的同事產生心動曖昧，感到內疚又困惑，前來尋求自我覺察。",
+      "【自我覺察與心靈】問卜者是一位自由創作者，近一個月嚴重拖延、失去靈感，看著同儕都有好成績而倍感焦慮，提問如何打破這層創作冰河期。",
+      "【金錢與合作】問卜者正考慮與好友共同出資創業開咖啡店，但彼此對合約財務透明度有微妙的隱憂，問當前的合作能量與該留意的核心關鍵。",
+      "【感情與關係】問卜者剛經歷一場突如其來的斷聯分手，每天忍不住反覆查看對方的社群動態，想知道自己該如何走出這段情感執念。",
+      "【職場與事業】問卜者在目前公司待了五年，薪資穩定但已無升遷空間，剛收到一家新創公司的高薪 Offer 但工時極長，猶豫是否該跳槽。",
+      "【金錢與抉擇】問卜者近期有一筆閒置儲蓄，正糾結該投入高風險投資追求獲利，還是保留現金作為生活備用金。",
+      "【自我覺察與心靈】問卜者發現自己常在群體中習慣性討好他人，不敢拒絕別人的無理要求，導致身心俱疲，前來尋找建立個人界線的指引。",
+      "【人際與家庭】問卜者長期受到原生家庭父母的過度干涉與情緒勒索，想要搬出去獨立生活卻充滿愧疚感，想看清內在的核心盲點。",
+      "【職場與事業】問卜者剛被拔擢為新團隊的小主管，但團隊資深前輩態度消極、不服領導，不知該如何破局建立威信。",
+      "【感情與關係】問卜者單身三年，透過交友軟體認識了一位聊得來但忽冷忽熱的對象，想知道這段互動背後的真實投射。",
+      "【自我覺察與心靈】問卜者最近每逢深夜總是感到莫名的空虛與焦慮，即使白天工作順遂也無法填補，想探索潛意識底層的真正渴望。",
+      "【職場與事業】問卜者想在正職之餘開啟一人自媒體副業，但總覺得自己準備不夠完美而遲遲不敢發布第一支作品。",
+      "【感情與關係】問卜者正面臨伴侶提出結婚成家的要求，但自己內心對失去個人自由感到極度恐懼，前來梳理這份排斥感從何而來。",
+      "【人際與友誼】問卜者發現一位多年摯友近期背地裡議論自己，感到被背叛，糾結該直接攤牌對質還是默默淡出關係。",
+      "【健康與身心】問卜者長期處於高壓工作節奏，身體已經出現失眠與偏頭痛警訊，卻無法停下腳步休息，想看見當前的身心能量警示。",
+      "【自我覺察與心靈】問卜者常覺得自己是「冒牌者（Impostor Syndrome）」，即使獲得大獎肯定也覺得純屬運氣好，前來尋求自信修復。",
+      "【金錢與生活】問卜者最近面臨房租大幅調漲，正在考慮是否該搬回老家生活節省開銷，但又擔心失去大城市的發展自由。",
+      "【職場與事業】問卜者在團隊中與另一位同事發生嚴重的理念分歧，會議上火藥味濃厚，想了解如何化解溝通僵局或自保。",
+      "【感情與關係】問卜者正處於一段遠距離戀愛中，因時差與生活圈脫節產生無力感，不知這段關係是否值得繼續堅持。",
+      "【自我覺察與心靈】問卜者對自己當前的人生目標感到徹底迷茫，感覺每天都在機械式度日，想抽一張牌看清靈魂方向。",
+      "【金錢與合作】問卜者打算將一筆資金借給親戚應急，但心裡隱隱覺得對方信用不良，前來尋求直覺確認。",
+      "【職場與事業】問卜者準備在年終考核時向老闆爭取加薪 20%，想知道當前的談判籌碼與該注意的談判姿態。",
+      "【感情與關係】問卜者心中始終放不下十年前的初戀，導致無法投入任何新的感情，想了解如何真正告別過去以迎向新生。",
+      "【自我覺察與心靈】問卜者最近對身邊所有的人事物都感到極度不耐煩、容易發脾氣，想探索這份易怒背後壓抑的情緒是什麼。",
+      "【職場與事業】問卜者決定裸辭休息三個月，但身邊長輩不斷施加就業焦慮，想尋求堅定自我步伐的心靈定心丸。",
+      "【人際與家庭】問卜者正面臨與手足分配父母照護責任的摩擦，大家都想推卸，想知道如何公平且理性地達成共識。",
+      "【自我覺察與心靈】問卜者感覺自己最近對物質或美食有成癮補償的傾向，想看見這份慾望背後試圖填補的心靈缺口。",
+      "【感情與關係】問卜者遇到一位各項條件都無懈可擊的追求者，但自己內心卻毫無悸動，想了解該給彼此機會還是相信直覺拒絕。",
+      "【職場與事業】問卜者負責的核心專案遭遇外部廠商違約的重大打擊，面臨進度延宕危機，提問如何穩住陣腳因應逆境。",
+      "【金錢與生活】問卜者正糾結是否該花費一筆高昂學費報名一門專業身心靈認證課程，想知道這項學習對未來的實質啟發。",
+      "【自我覺察與心靈】問卜者發現自己很容易嫉妒社群網路上光鮮亮麗的同齡人，想將這份酸澀的嫉妒轉化為自我成長的動力。",
+      "【感情與關係】問卜者與另一半經常為了家務分工與生活細節爭吵，感覺彼此的愛意正在被磨損，前來尋找重修舊好的鑰匙。",
+      "【職場與事業】問卜者身處充滿辦公室政治的環境，不知道該站隊表態還是保持絕對中立自保。",
+      "【自我覺察與心靈】問卜者總是習慣過度反芻過去說錯的一句話或做錯的一件事，深受自責折磨，想學習寬恕自己。",
+      "【人際與友誼】問卜者感覺身邊某位朋友能量非常消耗（情緒吸血鬼），每次聚會後都精疲力竭，詢問如何溫和拉開距離。",
+      "【金錢與抉擇】問卜者面臨購屋自住的人生抉擇，但背負 30 年房貸的壓力讓其喘不過氣，想釐清當前是否為進場時機。",
+      "【職場與事業】問卜者即將在下週舉辦一場關鍵的公開演講，內心恐懼怯場，尋求克服內心焦慮的心理錨定。",
+      "【感情與關係】問卜者離異多年，近期遇到心儀對象卻害怕重蹈覆轍再次受傷，詢問如何卸下防備重新去愛。",
+      "【自我覺察與心靈】問卜者近期頻繁做惡夢，夢見高空墜落或迷路，想透過塔羅探索潛意識正在發出的緊急訊號。",
+      "【職場與事業】問卜者正面臨兩個部門主管的搶人大戰，不知該選擇穩定的老部門還是充滿挑戰的新創部門。",
+      "【人際與家庭】問卜者在年節聚會前夕感到巨大壓力，害怕被親戚盤問婚姻與收入，尋求內在強大的應對姿態。",
+      "【自我覺察與心靈】問卜者感覺自己擁有一切世俗定義的成功，但內心卻感受不到真正的快樂，前來探尋靈魂的真實渴望。",
+      "【金錢與合作】問卜者收到一份合夥邀請，對方提出美好的未來願景，想看清表面繁華背後是否存在未察覺的漏洞。",
+      "【感情與關係】問卜者察覺到另一半的手機訊息頻繁響起且行為反常，懷疑有信任危機，該如何冷靜且智慧地面對？",
+      "【職場與事業】問卜者在目前領域達到天花板，考慮轉向完全陌生的第二曲線行業，想評估這場冒險的核心挑戰。",
+      "【自我覺察與心靈】問卜者經常在重大機會來臨前習慣性退縮（自我阻礙），想揪出內心深處對成功的潛在恐懼。",
+      "【健康與身心】問卜者總覺得腦袋思緒雜亂停不下來，處於過度思慮（Overthinking）狀態，尋求回歸身心整合的中庸之道。",
+      "【人際與友誼】問卜者被誤解捲入一場辦公室八卦風波中，有理說不清，前來尋求如何在沉默與自清中拿捏分寸。",
+      "【自我覺察與心靈】問卜者正處於人生的交替空白期，想要將這段無所事事的時光轉化為深度的靈性充電之旅。"
     ];
 
     let AppState = {
@@ -803,6 +883,7 @@
       userNotes: {},
       currentSpread: 'single',
       drawnCards: [],
+      flippedCount: 0,
       currentQuiz: null
     };
 
@@ -844,20 +925,25 @@
       elem.classList.add('active');
       document.getElementById('cardsDisplayContainer').innerHTML = '';
       document.getElementById('practiceFormBox').style.display = 'none';
+      AppState.drawnCards = [];
+      AppState.flippedCount = 0;
     }
 
-    function shuffleAndDraw() {
+    // 洗牌發牌：先洗出背面，等待使用者親自點擊翻開
+    function shuffleCards() {
       const container = document.getElementById('cardsDisplayContainer');
       container.innerHTML = '';
       AppState.drawnCards = [];
+      AppState.flippedCount = 0;
+      document.getElementById('practiceFormBox').style.display = 'none';
 
       let positions = [];
       if (AppState.currentSpread === 'single') {
         positions = [{ name: '直覺指引' }];
       } else if (AppState.currentSpread === 'three') {
-        positions = [{ name: '身 (外在)' }, { name: '心 (情緒)' }, { name: '靈 (潛意識)' }];
+        positions = [{ name: '身 (外在環境)' }, { name: '心 (情緒感受)' }, { name: '靈 (潛意識智慧)' }];
       } else {
-        positions = [{ name: '過去' }, { name: '現在' }, { name: '未來' }];
+        positions = [{ name: '過去因果' }, { name: '當前核心' }, { name: '未來走向' }];
       }
 
       const shuffled = [...TAROT_CARDS].sort(() => 0.5 - Math.random());
@@ -866,52 +952,64 @@
       positions.forEach((pos, idx) => {
         const card = selected[idx];
         const isReversed = Math.random() < 0.45;
-        AppState.drawnCards.push({ card, isReversed, posName: pos.name });
+        AppState.drawnCards.push({ card, isReversed, posName: pos.name, isFlipped: false });
 
         const col = document.createElement('div');
         col.className = 'card-col';
         col.innerHTML = `
           <div class="pos-label">${pos.name}</div>
-          <div class="rws-card ${isReversed ? 'reversed' : ''}" id="card-elem-${idx}" onclick="flipCard(${idx})">
+          <div class="rws-card ${isReversed ? 'reversed' : ''}" id="card-elem-${idx}" onclick="userFlipCard(${idx})">
             <div class="card-face-back">
               <div class="card-back-ornament"></div>
+              <div class="card-click-hint">點擊翻牌 ✦</div>
             </div>
             <div class="card-face-front">
               <img src="${card.img}" alt="${card.name}" onerror="this.src='https://picsum.photos/seed/${card.id}/300/520'">
               <div class="card-badge">${card.name} (${isReversed ? '逆' : '正'})</div>
             </div>
           </div>
-          <div style="font-size:0.85rem; color:var(--gold-light); font-weight:600; text-align:center; min-height:22px;" id="card-name-${idx}">
-            點擊翻牌
+          <div style="font-size:0.85rem; color:var(--text-muted); text-align:center; min-height:22px;" id="card-name-${idx}">
+            等待揭示...
           </div>
         `;
         container.appendChild(col);
       });
 
-      selected.forEach((c, i) => {
-        setTimeout(() => flipCard(i), 250 + i * 250);
-      });
-
-      document.getElementById('practiceFormBox').style.display = 'block';
+      // 平滑滾動到卡牌區
+      container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
-    function flipCard(idx) {
+    // 使用者親自手動翻開單張卡牌
+    function userFlipCard(idx) {
+      const info = AppState.drawnCards[idx];
+      if (!info || info.isFlipped) return; // 已經翻過就不用再翻
+
       const cardElem = document.getElementById(`card-elem-${idx}`);
       const nameElem = document.getElementById(`card-name-${idx}`);
-      if (!cardElem) return;
       
       cardElem.classList.add('flipped');
-      const info = AppState.drawnCards[idx];
-      nameElem.innerHTML = `${info.card.name} · <span style="color:${info.isReversed ? 'var(--danger)':'var(--success)'};">${info.isReversed ? '逆位' : '正位'}</span>`;
+      info.isFlipped = true;
+      AppState.flippedCount++;
+
+      nameElem.innerHTML = `<strong style="color:var(--gold-light);">${info.card.name}</strong> · <span style="color:${info.isReversed ? 'var(--danger)':'var(--success)'}; font-weight:700;">${info.isReversed ? '逆位' : '正位'}</span>`;
+
+      // 當牌陣中所有的牌都被翻開時，自動展開下方的覺察筆記區
+      if (AppState.flippedCount === AppState.drawnCards.length) {
+        const formBox = document.getElementById('practiceFormBox');
+        formBox.style.display = 'block';
+        setTimeout(() => {
+          formBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 300);
+      }
     }
 
     function savePracticeToJournal() {
-      const q = document.getElementById('practiceQuestion').value.trim();
+      const q = document.getElementById('practiceQuestion').value.trim() || '每日覺察練習';
       const intuition = document.getElementById('practiceIntuition').value.trim();
       const action = document.getElementById('practiceAction').value.trim();
 
-      if (!AppState.drawnCards.length) {
-        alert('請先翻開牌面！');
+      if (!AppState.drawnCards.length || AppState.flippedCount < AppState.drawnCards.length) {
+        alert('請先將所有的牌卡都翻開揭曉喔！');
         return;
       }
 
@@ -920,7 +1018,7 @@
         date: new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit', hour:'2-digit', minute:'2-digit' }),
         type: '覺察抽牌',
         spreadName: AppState.currentSpread === 'single' ? '單張直覺' : (AppState.currentSpread === 'three' ? '身心靈三牌陣' : '時間之流'),
-        question: q || '每日覺察練習',
+        question: q,
         cards: AppState.drawnCards.map(d => ({
           cardId: d.card.id,
           name: d.card.name,
@@ -940,11 +1038,15 @@
       document.getElementById('practiceQuestion').value = '';
       document.getElementById('practiceIntuition').value = '';
       document.getElementById('practiceAction').value = '';
+      document.getElementById('practiceFormBox').style.display = 'none';
+      document.getElementById('cardsDisplayContainer').innerHTML = '';
+      AppState.drawnCards = [];
+      AppState.flippedCount = 0;
     }
 
     function generateShareImage() {
-      if (!AppState.drawnCards.length) {
-        alert('請先抽牌！');
+      if (!AppState.drawnCards.length || AppState.flippedCount < AppState.drawnCards.length) {
+        alert('請先翻開全部牌面！');
         return;
       }
       const canvas = document.getElementById('shareCanvas');
@@ -1280,7 +1382,6 @@
 
     window.addEventListener('DOMContentLoaded', () => {
       loadSavedData();
-      shuffleAndDraw();
     });
   </script>
 </body>
