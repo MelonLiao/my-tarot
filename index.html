@@ -6,22 +6,22 @@
   <title>塔羅覺察練習與個人資料庫 | Tarot Codex</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Noto+Serif+TC:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Noto+Serif+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0d0f17;
-      --card-bg: #161b2b;
-      --card-border: #2e3856;
-      --gold: #d4af37;
-      --gold-light: #f3e5ab;
-      --gold-dark: #aa820a;
-      --accent: #9381ff;
-      --text-main: #f0f2f5;
-      --text-muted: #9aa5b8;
-      --danger: #ff6b6b;
-      --success: #51cf66;
-      --radius: 14px;
-      --shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+      --bg: #FAF7F2;
+      --card-bg: #FFFFFF;
+      --card-border: #E8E2D5;
+      --gold: #A8834C;
+      --gold-light: #C4A47C;
+      --gold-dark: #7A5C2E;
+      --accent: #7A8B7B;
+      --text-main: #2C2A29;
+      --text-muted: #7E7770;
+      --danger: #C06055;
+      --success: #52795B;
+      --radius: 16px;
+      --shadow: 0 10px 30px rgba(168, 131, 76, 0.08);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -33,13 +33,12 @@
       display: flex;
       flex-direction: column;
       background-image: 
-        radial-gradient(ellipse at 50% 0%, rgba(147, 129, 255, 0.12) 0%, transparent 60%),
-        radial-gradient(ellipse at 50% 100%, rgba(212, 175, 55, 0.08) 0%, transparent 60%);
+        radial-gradient(ellipse at 50% 0%, rgba(196, 164, 124, 0.1) 0%, transparent 70%);
       background-attachment: fixed;
     }
 
     header {
-      background: rgba(13, 15, 23, 0.9);
+      background: rgba(250, 247, 242, 0.88);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--card-border);
       position: sticky;
@@ -65,13 +64,12 @@
     .brand-icon {
       font-size: 24px;
       color: var(--gold);
-      text-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
     }
     .brand-text h1 {
       font-family: 'Cinzel', serif;
       font-size: 1.15rem;
       letter-spacing: 1px;
-      color: var(--gold-light);
+      color: var(--gold-dark);
     }
     .brand-text p {
       font-size: 0.72rem;
@@ -81,7 +79,7 @@
     nav {
       display: flex;
       gap: 6px;
-      background: rgba(22, 27, 43, 0.8);
+      background: #F0EBE1;
       padding: 4px;
       border-radius: 40px;
       border: 1px solid var(--card-border);
@@ -103,8 +101,8 @@
     }
     .nav-btn.active {
       background: var(--gold);
-      color: #0d0f17;
-      box-shadow: 0 2px 8px rgba(212, 175, 55, 0.35);
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(168, 131, 76, 0.25);
     }
 
     main {
@@ -124,7 +122,7 @@
 
     .btn {
       background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-      color: #0d0f17;
+      color: #FFFFFF;
       border: none;
       padding: 10px 22px;
       font-size: 0.95rem;
@@ -132,29 +130,29 @@
       font-weight: 700;
       border-radius: 30px;
       cursor: pointer;
-      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.25);
+      box-shadow: 0 4px 15px rgba(168, 131, 76, 0.2);
       transition: all 0.2s;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
     }
-    .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4); }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(168, 131, 76, 0.3); }
     .btn:active { transform: translateY(0); }
     .btn-secondary {
       background: transparent;
-      color: var(--gold-light);
+      color: var(--gold-dark);
       border: 1px solid var(--gold);
       box-shadow: none;
     }
-    .btn-secondary:hover { background: rgba(212, 175, 55, 0.1); }
+    .btn-secondary:hover { background: rgba(168, 131, 76, 0.08); }
     .btn-sm { padding: 6px 14px; font-size: 0.8rem; }
 
     /* 模式切換鈕 */
     .mode-switch-wrap {
       display: inline-flex;
-      background: rgba(22, 27, 43, 0.95);
-      border: 1px solid var(--gold);
+      background: #F0EBE1;
+      border: 1px solid var(--card-border);
       padding: 3px;
       border-radius: 30px;
       margin-bottom: 16px;
@@ -162,7 +160,7 @@
     .mode-btn {
       background: transparent;
       border: none;
-      color: var(--gold-light);
+      color: var(--text-muted);
       padding: 6px 18px;
       border-radius: 20px;
       cursor: pointer;
@@ -173,13 +171,13 @@
     }
     .mode-btn.active {
       background: var(--gold);
-      color: #0d0f17;
+      color: #FFFFFF;
     }
 
     /* 手動輸入選單容器 */
     .manual-entry-box {
-      background: rgba(147, 129, 255, 0.06);
-      border: 1px dashed var(--accent);
+      background: #F4EFE6;
+      border: 1px dashed var(--gold-light);
       border-radius: var(--radius);
       padding: 18px;
       max-width: 680px;
@@ -192,14 +190,14 @@
       gap: 12px;
       margin-bottom: 12px;
       flex-wrap: wrap;
-      background: rgba(13, 15, 23, 0.6);
+      background: #FFFFFF;
       padding: 10px 14px;
       border-radius: 8px;
       border: 1px solid var(--card-border);
     }
     select {
-      background: #101524;
-      color: var(--gold-light);
+      background: #FAF7F2;
+      color: var(--text-main);
       border: 1px solid var(--card-border);
       border-radius: 6px;
       padding: 6px 12px;
@@ -217,10 +215,10 @@
       position: relative;
       cursor: pointer;
       user-select: none;
-      border-radius: 10px;
+      border-radius: 12px;
       box-shadow: var(--shadow);
       border: 2px solid var(--card-border);
-      background-color: #101524;
+      background-color: #FFFFFF;
       overflow: hidden;
       flex-shrink: 0;
       transition: transform 0.25s ease, box-shadow 0.25s ease;
@@ -228,7 +226,7 @@
     .rws-card:not(.flipped):hover {
       transform: translateY(-6px);
       border-color: var(--gold);
-      box-shadow: 0 12px 28px rgba(212, 175, 55, 0.3);
+      box-shadow: 0 12px 28px rgba(168, 131, 76, 0.2);
     }
 
     .card-face-back, .card-face-front {
@@ -241,7 +239,7 @@
     }
 
     .card-face-back {
-      background: radial-gradient(circle at center, #232d4b 0%, #101524 100%);
+      background: linear-gradient(135deg, #F5F0E8 0%, #E8E2D5 100%);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -254,12 +252,12 @@
       content: '';
       position: absolute;
       inset: 6px;
-      border: 1px dashed rgba(212, 175, 55, 0.45);
-      border-radius: 6px;
+      border: 1px dashed rgba(168, 131, 76, 0.4);
+      border-radius: 8px;
     }
     .card-back-ornament {
-      width: 50px;
-      height: 50px;
+      width: 46px;
+      height: 46px;
       border: 2px solid var(--gold);
       transform: rotate(45deg);
       display: flex;
@@ -268,23 +266,23 @@
     }
     .card-back-ornament::after {
       content: '✦';
-      font-size: 20px;
+      font-size: 18px;
       color: var(--gold);
       transform: rotate(-45deg);
     }
     .card-click-hint {
       font-size: 0.75rem;
-      color: var(--gold-light);
-      background: rgba(13, 15, 23, 0.7);
-      padding: 3px 8px;
+      color: var(--gold-dark);
+      background: rgba(255, 255, 255, 0.9);
+      padding: 3px 10px;
       border-radius: 10px;
-      border: 1px solid rgba(212, 175, 55, 0.3);
+      border: 1px solid var(--card-border);
     }
 
     .card-face-front {
       z-index: 1;
       opacity: 0;
-      background: #000;
+      background: #FFFFFF;
     }
     .card-face-front img {
       width: 100%;
@@ -310,14 +308,14 @@
       bottom: 8px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(13, 15, 23, 0.88);
+      background: rgba(250, 247, 242, 0.92);
       backdrop-filter: blur(4px);
       padding: 3px 10px;
       border-radius: 12px;
       font-size: 0.72rem;
       white-space: nowrap;
       border: 1px solid var(--gold);
-      color: var(--gold-light);
+      color: var(--gold-dark);
       pointer-events: none;
       z-index: 4;
     }
@@ -329,7 +327,7 @@
     }
     .practice-header h2 {
       font-size: 1.5rem;
-      color: var(--gold-light);
+      color: var(--gold-dark);
       margin-bottom: 8px;
     }
     .spread-select-wrap {
@@ -345,12 +343,14 @@
       border-radius: 20px;
       font-size: 0.85rem;
       cursor: pointer;
+      color: var(--text-muted);
       transition: all 0.2s;
     }
     .spread-chip.active {
       border-color: var(--gold);
-      background: rgba(212, 175, 55, 0.15);
-      color: var(--gold-light);
+      background: #F4EFE6;
+      color: var(--gold-dark);
+      font-weight: 600;
     }
 
     .initial-question-box {
@@ -361,6 +361,7 @@
       max-width: 680px;
       margin: 0 auto 20px;
       text-align: left;
+      box-shadow: var(--shadow);
     }
 
     .cards-row {
@@ -381,30 +382,32 @@
     }
     .pos-label {
       font-size: 0.85rem;
-      color: var(--gold-light);
+      color: var(--gold-dark);
       font-weight: 600;
       letter-spacing: 0.5px;
     }
 
     /* 靈感指引抽屜樣式 */
     .hint-toggle-btn {
-      background: rgba(212, 175, 55, 0.08);
-      border: 1px dashed rgba(212, 175, 55, 0.4);
-      color: var(--gold-light);
+      background: #F4EFE6;
+      border: 1px solid var(--card-border);
+      color: var(--gold-dark);
       font-size: 0.72rem;
-      padding: 3px 10px;
+      padding: 4px 12px;
       border-radius: 12px;
       cursor: pointer;
       transition: all 0.2s ease;
       font-family: inherit;
+      font-weight: 600;
     }
     .hint-toggle-btn:hover {
-      background: rgba(212, 175, 55, 0.2);
+      background: var(--gold);
+      color: #FFFFFF;
       border-color: var(--gold);
     }
     .card-hint-drawer {
       display: none;
-      background: rgba(13, 15, 23, 0.95);
+      background: #FFFFFF;
       border: 1px solid var(--card-border);
       border-radius: 8px;
       padding: 10px 12px;
@@ -413,7 +416,7 @@
       color: var(--text-muted);
       text-align: left;
       margin-top: 4px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
       animation: fadeIn 0.25s ease-out;
     }
     .card-hint-drawer.open {
@@ -429,6 +432,7 @@
       max-width: 760px;
       margin-left: auto;
       margin-right: auto;
+      box-shadow: var(--shadow);
     }
     .form-group {
       margin-bottom: 16px;
@@ -436,13 +440,13 @@
     .form-group label {
       display: block;
       font-size: 0.85rem;
-      color: var(--gold-light);
+      color: var(--gold-dark);
       margin-bottom: 6px;
       font-weight: 600;
     }
     textarea, input[type="text"] {
       width: 100%;
-      background: rgba(13, 15, 23, 0.7);
+      background: #FAF7F2;
       border: 1px solid var(--card-border);
       border-radius: 8px;
       padding: 10px 14px;
@@ -454,7 +458,7 @@
     textarea:focus, input[type="text"]:focus {
       outline: none;
       border-color: var(--gold);
-      box-shadow: 0 0 8px rgba(212, 175, 55, 0.2);
+      box-shadow: 0 0 8px rgba(168, 131, 76, 0.15);
     }
 
     /* 塔羅出題練習 */
@@ -465,15 +469,17 @@
       padding: 24px;
       max-width: 680px;
       margin: 0 auto;
+      box-shadow: var(--shadow);
     }
     .scenario-box {
-      background: rgba(147, 129, 255, 0.08);
+      background: #F4EFE6;
       border-left: 3px solid var(--accent);
       padding: 14px 18px;
       border-radius: 0 8px 8px 0;
       margin-bottom: 20px;
       font-size: 0.95rem;
       line-height: 1.6;
+      color: var(--text-main);
     }
 
     /* 78 張個人圖鑑庫 */
@@ -501,7 +507,7 @@
     }
     .filter-btn.active {
       background: var(--gold);
-      color: #0d0f17;
+      color: #FFFFFF;
       border-color: var(--gold);
     }
     .codex-grid {
@@ -512,23 +518,24 @@
     .codex-card-thumb {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 10px;
+      border-radius: 12px;
       overflow: hidden;
       cursor: pointer;
       transition: all 0.25s;
       display: flex;
       flex-direction: column;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
     }
     .codex-card-thumb:hover {
       transform: translateY(-4px);
       border-color: var(--gold);
-      box-shadow: 0 6px 16px rgba(212, 175, 55, 0.2);
+      box-shadow: var(--shadow);
     }
     .thumb-img {
       width: 100%;
       height: 220px;
       object-fit: cover;
-      background: #111;
+      background: #F0EBE1;
     }
     .thumb-info {
       padding: 8px 6px;
@@ -537,7 +544,7 @@
     .thumb-title {
       font-size: 0.82rem;
       font-weight: 600;
-      color: var(--gold-light);
+      color: var(--gold-dark);
       margin-bottom: 2px;
     }
     .thumb-count {
@@ -557,6 +564,7 @@
       border-radius: var(--radius);
       padding: 18px;
       position: relative;
+      box-shadow: var(--shadow);
     }
     .journal-entry-header {
       display: flex;
@@ -570,11 +578,12 @@
       gap: 6px;
     }
     .journal-tag {
-      background: rgba(147, 129, 255, 0.15);
-      color: var(--accent);
+      background: #F4EFE6;
+      color: var(--gold-dark);
       padding: 2px 8px;
       border-radius: 10px;
       font-size: 0.75rem;
+      font-weight: 600;
     }
     .entry-cards-preview {
       display: flex;
@@ -586,7 +595,7 @@
     .mini-card {
       width: 48px;
       height: 82px;
-      border-radius: 4px;
+      border-radius: 6px;
       overflow: hidden;
       border: 1px solid var(--card-border);
       position: relative;
@@ -604,7 +613,7 @@
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.75);
+      background: rgba(44, 42, 41, 0.6);
       backdrop-filter: blur(6px);
       z-index: 1000;
       display: none;
@@ -623,6 +632,7 @@
       overflow-y: auto;
       padding: 24px;
       position: relative;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
     }
     .modal-close {
       position: absolute;
@@ -642,7 +652,7 @@
     .modal-card-img {
       width: 160px;
       height: 275px;
-      border-radius: 8px;
+      border-radius: 10px;
       border: 1px solid var(--gold);
       object-fit: cover;
       box-shadow: var(--shadow);
@@ -715,7 +725,7 @@
 
         <!-- 提問主題輸入 -->
         <div class="initial-question-box">
-          <label style="display:block; font-size:0.88rem; color:var(--gold-light); font-weight:700; margin-bottom:8px;">
+          <label style="display:block; font-size:0.88rem; color:var(--gold-dark); font-weight:700; margin-bottom:8px;">
             💭 輸入你的提問 / 當前心境主題
           </label>
           <input type="text" id="practiceQuestion" placeholder="例如：我對於新專案的內心焦慮從何而來？（也可以留空抽每日指引）">
@@ -729,7 +739,7 @@
 
         <!-- 手動輸入實體牌專用介面 -->
         <div class="manual-entry-box" id="manualEntryBox">
-          <h4 style="color:var(--gold-light); margin-bottom:12px; font-size:0.95rem; text-align:left;">
+          <h4 style="color:var(--gold-dark); margin-bottom:12px; font-size:0.95rem; text-align:left;">
             🃏 挑選你手中抽到的實體牌卡：
           </h4>
           <div id="manualPickersContainer"></div>
@@ -741,12 +751,12 @@
         </div>
       </div>
 
-      <!-- 牌陣容器（由使用者手動點擊翻牌） -->
+      <!-- 牌陣容器 -->
       <div class="cards-row" id="cardsDisplayContainer"></div>
 
       <!-- 覺察心得填寫區 -->
       <div class="reflection-box" id="practiceFormBox" style="display: none;">
-        <h3 style="color: var(--gold-light); margin-bottom: 14px; font-size: 1.1rem;">📝 你的直覺覺察筆記</h3>
+        <h3 style="color: var(--gold-dark); margin-bottom: 14px; font-size: 1.1rem;">📝 你的直覺覺察筆記</h3>
         <div class="form-group">
           <label>第一眼的視覺感受與牌面直覺：</label>
           <textarea id="practiceIntuition" rows="3" placeholder="看著牌面中的人物、顏色或象徵符號，你心裡湧現的第一直覺是什麼？"></textarea>
@@ -766,7 +776,7 @@
     <section id="tab-quiz" class="tab-view">
       <div class="quiz-card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-          <h2 style="font-size:1.3rem; color:var(--gold-light);">⚔️ 50+ 實戰情境出題</h2>
+          <h2 style="font-size:1.3rem; color:var(--gold-dark);">⚔️ 50+ 實戰情境出題</h2>
           <button class="btn btn-secondary btn-sm" onclick="initNewQuiz()">隨機換題 ↻</button>
         </div>
 
@@ -779,7 +789,7 @@
               <div class="card-badge" id="quizCardBadge"></div>
             </div>
           </div>
-          <p id="quizCardName" style="color: var(--gold-light); font-weight: 700; margin-top: 10px;"></p>
+          <p id="quizCardName" style="color: var(--gold-dark); font-weight: 700; margin-top: 10px;"></p>
         </div>
 
         <div class="form-group">
@@ -813,7 +823,7 @@
     <!-- TAB 4: 塔羅日記 -->
     <section id="tab-journal" class="tab-view">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2 style="font-size: 1.3rem; color: var(--gold-light);">📜 歷史覺察歷程</h2>
+        <h2 style="font-size: 1.3rem; color: var(--gold-dark);">📜 歷史覺察歷程</h2>
         <span id="journalCount" style="color: var(--text-muted); font-size: 0.85rem;">共 0 篇</span>
       </div>
       <div class="journal-list" id="journalListContainer"></div>
@@ -827,7 +837,7 @@
       <div class="modal-body">
         <img id="modalCardImg" class="modal-card-img" src="" alt="">
         <div class="modal-info">
-          <h2 id="modalCardName" style="color: var(--gold-light); margin-bottom: 4px;"></h2>
+          <h2 id="modalCardName" style="color: var(--gold-dark); margin-bottom: 4px;"></h2>
           <p id="modalCardEnName" style="color: var(--accent); font-size: 0.85rem; margin-bottom: 12px; font-family: 'Cinzel';"></p>
           <p id="modalKeywords" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 14px;"></p>
           
@@ -855,7 +865,7 @@
   <div class="modal-backdrop" id="shareImageModal" onclick="closeModal(event, 'shareImageModal')">
     <div class="modal-content" style="text-align: center;" onclick="event.stopPropagation()">
       <button class="modal-close" onclick="closeModalDirect('shareImageModal')">&times;</button>
-      <h3 style="color: var(--gold-light); margin-bottom: 8px;">✨ 你的覺察名信片已產生</h3>
+      <h3 style="color: var(--gold-dark); margin-bottom: 8px;">✨ 你的覺察名信片已產生</h3>
       <p style="font-size: 0.85rem; color: var(--text-muted);">長按圖片即可儲存，或點選下方按鈕下載</p>
       <img id="shareResultImg" class="preview-modal-img" src="" alt="覺察圖卡">
       <div>
@@ -1088,7 +1098,7 @@
         const row = document.createElement('div');
         row.className = 'manual-picker-row';
         row.innerHTML = `
-          <strong style="color:var(--gold-light); min-width:130px; font-size:0.88rem;">📍 ${pos.name}：</strong>
+          <strong style="color:var(--gold-dark); min-width:130px; font-size:0.88rem;">📍 ${pos.name}：</strong>
           <select id="manualSelectCard_${idx}">
             ${TAROT_CARDS.map(c => `<option value="${c.id}">${c.name} (${c.en})</option>`).join('')}
           </select>
@@ -1126,12 +1136,12 @@
               <div class="card-badge">${card.name} (${isReversed ? '逆' : '正'})</div>
             </div>
           </div>
-          <div style="font-size:0.85rem; color:var(--gold-light); text-align:center; min-height:22px; font-weight:700;">
+          <div style="font-size:0.85rem; color:var(--gold-dark); text-align:center; min-height:22px; font-weight:700;">
             ${card.name} · <span style="color:${isReversed ? 'var(--danger)':'var(--success)'};">${isReversed ? '逆位' : '正位'}</span>
           </div>
           <button class="hint-toggle-btn" onclick="toggleCardHint(${idx})">💡 靈感指引</button>
           <div class="card-hint-drawer" id="card-hint-${idx}">
-            <div style="color:var(--gold); font-weight:600; margin-bottom:2px;">【核心象徵】</div>
+            <div style="color:var(--gold-dark); font-weight:600; margin-bottom:2px;">【核心象徵】</div>
             <div>${card.keywords}</div>
             <div style="color:var(--accent); font-weight:600; margin-top:6px; margin-bottom:2px;">【初學引導】</div>
             <div>${card.meaning}</div>
@@ -1183,7 +1193,7 @@
           <div id="card-hint-wrap-${idx}" style="display:none; width:100%; text-align:center;">
             <button class="hint-toggle-btn" onclick="toggleCardHint(${idx})">💡 靈感指引</button>
             <div class="card-hint-drawer" id="card-hint-${idx}">
-              <div style="color:var(--gold); font-weight:600; margin-bottom:2px;">【核心象徵】</div>
+              <div style="color:var(--gold-dark); font-weight:600; margin-bottom:2px;">【核心象徵】</div>
               <div>${card.keywords}</div>
               <div style="color:var(--accent); font-weight:600; margin-top:6px; margin-bottom:2px;">【初學引導】</div>
               <div>${card.meaning}</div>
@@ -1208,7 +1218,7 @@
       info.isFlipped = true;
       AppState.flippedCount++;
 
-      nameElem.innerHTML = `<strong style="color:var(--gold-light);">${info.card.name}</strong> · <span style="color:${info.isReversed ? 'var(--danger)':'var(--success)'}; font-weight:700;">${info.isReversed ? '逆位' : '正位'}</span>`;
+      nameElem.innerHTML = `<strong style="color:var(--gold-dark);">${info.card.name}</strong> · <span style="color:${info.isReversed ? 'var(--danger)':'var(--success)'}; font-weight:700;">${info.isReversed ? '逆位' : '正位'}</span>`;
       if (hintWrap) hintWrap.style.display = 'block';
 
       if (AppState.flippedCount === AppState.drawnCards.length) {
@@ -1220,7 +1230,6 @@
       }
     }
 
-    // 切換展開／收合靈感提示
     function toggleCardHint(idx) {
       const drawer = document.getElementById(`card-hint-${idx}`);
       if (drawer) {
@@ -1279,22 +1288,22 @@
       const q = document.getElementById('practiceQuestion').value.trim() || '每日覺察時刻';
       const intuition = document.getElementById('practiceIntuition').value.trim() || '向內觀照，看見當下最真實的能量指引。';
 
-      ctx.fillStyle = '#0d101d';
+      ctx.fillStyle = '#FAF7F2';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      ctx.strokeStyle = '#d4af37';
+      ctx.strokeStyle = '#A8834C';
       ctx.lineWidth = 4;
       ctx.strokeRect(30, 30, canvas.width - 60, canvas.height - 60);
-      ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)';
+      ctx.strokeStyle = 'rgba(168, 131, 76, 0.3)';
       ctx.lineWidth = 1;
       ctx.strokeRect(40, 40, canvas.width - 80, canvas.height - 80);
 
-      ctx.fillStyle = '#f3e5ab';
+      ctx.fillStyle = '#7A5C2E';
       ctx.font = 'bold 36px "Noto Serif TC", serif';
       ctx.textAlign = 'center';
       ctx.fillText('✦ 塔羅覺察隨筆 ✦', canvas.width / 2, 110);
 
-      ctx.fillStyle = '#9aa5b8';
+      ctx.fillStyle = '#7E7770';
       ctx.font = '22px "Noto Serif TC", serif';
       ctx.fillText(new Date().toLocaleDateString('zh-TW') + ' · ' + q, canvas.width / 2, 160);
 
@@ -1319,7 +1328,7 @@
           ctx.drawImage(img, -cardW / 2, -cardH / 2, cardW, cardH);
           ctx.restore();
 
-          ctx.fillStyle = '#d4af37';
+          ctx.fillStyle = '#7A5C2E';
           ctx.font = 'bold 22px "Noto Serif TC", serif';
           ctx.fillText(`${d.card.name} (${d.isReversed ? '逆' : '正'})`, cx, cardY + cardH + 36);
 
@@ -1329,12 +1338,12 @@
           }
         };
         img.onerror = () => {
-          ctx.fillStyle = '#1c233a';
+          ctx.fillStyle = '#E8E2D5';
           const x = startX + idx * (cardW + 30);
           ctx.fillRect(x, cardY, cardW, cardH);
-          ctx.strokeStyle = '#d4af37';
+          ctx.strokeStyle = '#A8834C';
           ctx.strokeRect(x, cardY, cardW, cardH);
-          ctx.fillStyle = '#f3e5ab';
+          ctx.fillStyle = '#7A5C2E';
           ctx.font = '20px serif';
           ctx.fillText(d.card.name, x + cardW / 2, cardY + cardH / 2);
 
@@ -1348,23 +1357,23 @@
     }
 
     function drawShareTextAndFinish(ctx, canvas, text) {
-      ctx.fillStyle = 'rgba(22, 27, 43, 0.85)';
+      ctx.fillStyle = '#FFFFFF';
       ctx.roundRect(80, 720, canvas.width - 160, 360, 16);
       ctx.fill();
-      ctx.strokeStyle = '#2e3856';
+      ctx.strokeStyle = '#E8E2D5';
       ctx.lineWidth = 1;
       ctx.stroke();
 
-      ctx.fillStyle = '#d4af37';
+      ctx.fillStyle = '#7A5C2E';
       ctx.font = 'bold 24px "Noto Serif TC", serif';
       ctx.textAlign = 'left';
       ctx.fillText('【 直覺覺察之音 】', 120, 780);
 
-      ctx.fillStyle = '#f0f2f5';
+      ctx.fillStyle = '#2C2A29';
       ctx.font = '22px "Noto Serif TC", serif';
       wrapText(ctx, text, 120, 830, canvas.width - 240, 36);
 
-      ctx.fillStyle = '#9aa5b8';
+      ctx.fillStyle = '#7E7770';
       ctx.font = '18px "Cinzel", serif';
       ctx.textAlign = 'center';
       ctx.fillText('— TAROT CODEX · INSIGHT & PRACTICE —', canvas.width / 2, 1140);
@@ -1503,7 +1512,7 @@
       } else {
         historyLogsContainer.innerHTML = relatedLogs.map(log => `
           <div style="border-bottom: 1px solid var(--card-border); padding: 6px 0; margin-bottom: 6px;">
-            <div style="color: var(--gold-light);">${log.date} · ${log.question}</div>
+            <div style="color: var(--gold-dark);">${log.date} · ${log.question}</div>
             <div style="color: var(--text-main); margin-top: 2px;">我的解析：${log.intuition || '無'}</div>
           </div>
         `).join('');
@@ -1543,7 +1552,7 @@
               <span class="journal-tag">${j.spreadName}</span>
             </div>
           </div>
-          <h4 style="color: var(--gold-light); font-size: 1.05rem; margin-bottom: 8px;">主題：${j.question}</h4>
+          <h4 style="color: var(--gold-dark); font-size: 1.05rem; margin-bottom: 8px;">主題：${j.question}</h4>
           
           <div class="entry-cards-preview">
             ${j.cards.map(c => `
@@ -1551,12 +1560,12 @@
                 <img src="${c.img}" alt="${c.name}" onerror="this.src='https://picsum.photos/seed/${c.cardId}/100/170'">
               </div>
             `).join('')}
-            <div style="font-size: 0.85rem; color: var(--gold-light);">
+            <div style="font-size: 0.85rem; color: var(--gold-dark);">
               ${j.cards.map(c => `${c.posName ? c.posName + ': ' : ''}<strong>${c.name}</strong>(${c.isReversed ? '逆' : '正'})`).join('、 ')}
             </div>
           </div>
 
-          <div style="background: rgba(13, 15, 23, 0.6); padding: 10px 14px; border-radius: 8px; margin-top: 8px; font-size: 0.88rem; line-height: 1.5;">
+          <div style="background: #FAF7F2; padding: 10px 14px; border-radius: 8px; margin-top: 8px; font-size: 0.88rem; line-height: 1.5; border: 1px solid var(--card-border);">
             <div><strong style="color: var(--gold);">直覺解讀：</strong>${j.intuition}</div>
             ${j.action ? `<div style="margin-top: 4px;"><strong style="color: var(--accent);">行動覺察：</strong>${j.action}</div>` : ''}
           </div>
